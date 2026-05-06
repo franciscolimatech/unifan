@@ -566,7 +566,139 @@
             </div>
         </div>
     </div>
+<!-- =====================
+     MODAL: GERAR RECIBO
+     Tarefa 3 — Emissão de Recibos/Faturas
+     ===================== -->
+<div class="modal-overlay" id="modalRecibo">
+    <div class="modal">
+        <h2><i class="fas fa-file-invoice"></i> Gerar Recibo</h2>
 
+        <div class="form-group">
+            <label>Nome / Razão Social *</label>
+            <input type="text" id="reciboNome" placeholder="Ex: João Silva ou Empresa LTDA">
+        </div>
+
+        <div class="form-group">
+            <label>CPF / CNPJ *</label>
+            <input type="text" id="reciboCpfCnpj" placeholder="000.000.000-00 ou 00.000.000/0001-00">
+        </div>
+
+        <div class="form-group">
+            <label>Endereço Completo <span style="font-weight:400; color:#888;">(obrigatório para NF)</span></label>
+            <input type="text" id="reciboEndereco" placeholder="Rua, número, bairro, CEP, cidade - BA">
+        </div>
+
+        <div class="form-group">
+            <label>Itens / Descrição</label>
+            <input type="text" id="reciboItens" placeholder="Ex: 10 sacos cimento, 500 tijolos">
+        </div>
+
+        <div class="form-group">
+            <label>Valor Total da Compra (R$) *</label>
+            <input type="number" id="reciboValor" placeholder="Ex: 1500.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+            <label>Forma de Pagamento</label>
+            <select id="reciboForma">
+                <option>Pix</option>
+                <option>Cartão Débito</option>
+                <option>Boleto Bancário</option>
+                <option>Cartão Crédito 1x</option>
+                <option>Cartão Crédito 2–6x</option>
+                <option>Cartão Crédito 7–12x</option>
+            </select>
+        </div>
+
+        <div class="taxa-info">
+            ℹ️ Tributos calculados conforme legislação baiana. Simples Nacional: recolhimento via DAS. LGPD: dados criptografados, retenção mín. 5 anos.
+        </div>
+
+        <div class="resultado-simulador" id="resultadoRecibo"></div>
+
+        <div class="modal-btns">
+            <button class="btn" onclick="gerarRecibo()">
+                <i class="fas fa-file-alt"></i> Gerar
+            </button>
+            <button class="btn btn-secondary" onclick="imprimirRecibo()">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button class="btn btn-secondary" onclick="fecharModal('modalRecibo')">
+                <i class="fas fa-times"></i> Fechar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- =====================
+     MODAL: ANÁLISE DETALHADA — CURVA ABC
+     ===================== -->
+<div class="modal-overlay" id="modalCurvaABC">
+    <div class="modal" style="max-width:780px;">
+        <h2><i class="fas fa-chart-simple"></i> Análise Detalhada — Curva ABC</h2>
+
+        <!-- Resumo em chips -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+            <div style="flex:1; min-width:140px; background:#e8f5e9; border-radius:14px; padding:12px; text-align:center;">
+                <div style="font-size:22px; font-weight:700; color:#1a3c2c;">70%</div>
+                <div style="font-size:12px; color:#2e7d32; font-weight:600;">Classe A — Prioritários</div>
+                <div style="font-size:11px; color:#4a5b6e; margin-top:4px;">Foco em reposição imediata</div>
+            </div>
+            <div style="flex:1; min-width:140px; background:#fff3e0; border-radius:14px; padding:12px; text-align:center;">
+                <div style="font-size:22px; font-weight:700; color:#e65100;">20%</div>
+                <div style="font-size:12px; color:#e65100; font-weight:600;">Classe B — Intermediários</div>
+                <div style="font-size:11px; color:#4a5b6e; margin-top:4px;">Monitoramento regular</div>
+            </div>
+            <div style="flex:1; min-width:140px; background:#f5f5f5; border-radius:14px; padding:12px; text-align:center;">
+                <div style="font-size:22px; font-weight:700; color:#757575;">10%</div>
+                <div style="font-size:12px; color:#757575; font-weight:600;">Classe C — Baixa movimentação</div>
+                <div style="font-size:11px; color:#4a5b6e; margin-top:4px;">Revisão de estoque</div>
+            </div>
+        </div>
+
+        <!-- Filtro -->
+        <div class="form-group">
+            <label>Filtrar por classe</label>
+            <select id="filtroABC" onchange="renderizarTabelaABC()">
+                <option value="todos">Todas as classes</option>
+                <option value="A">Classe A</option>
+                <option value="B">Classe B</option>
+                <option value="C">Classe C</option>
+            </select>
+        </div>
+
+        <!-- Tabela -->
+        <div style="overflow-x:auto; border-radius:12px; border:1px solid #edf2f7;">
+            <table class="data-table">
+                <thead>
+                    <tr style="background:#f8fafc;">
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Classe</th>
+                        <th>% Faturamento</th>
+                        <th>Giro</th>
+                        <th>Margem</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaABCBody"></tbody>
+            </table>
+        </div>
+
+        <div class="taxa-info" style="margin-top:12px;">
+            ℹ️ Classe A: produtos que representam 70% do faturamento — prioridade máxima em compras e estoque. Classe B: 20% — reposição planejada. Classe C: 10% — avaliar necessidade de manutenção no mix.
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn btn-secondary" onclick="exportarABC()">
+                <i class="fas fa-download"></i> Exportar CSV
+            </button>
+            <button class="btn btn-secondary" onclick="fecharModal('modalCurvaABC')">
+                <i class="fas fa-times"></i> Fechar
+            </button>
+        </div>
+    </div>
+</div>
     <script src="script.js"></script>
 
 </body>
