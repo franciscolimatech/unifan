@@ -727,7 +727,17 @@
                         </button>
                     </div>
                 </div>
-                <button class="btn" type="button" onclick="loginUsuario()">
+                <div class="auth-terms">
+                    <input class="auth-terms-input" type="checkbox" id="authLoginAceiteTermos">
+                    <label class="auth-terms-check" for="authLoginAceiteTermos" aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
+                    <span class="auth-terms-text">
+                        Li e aceito os
+                        <a href="termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        e a
+                        <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.
+                    </span>
+                </div>
+                <button class="btn" id="btnAuthLogin" type="button" onclick="loginUsuario()" disabled>
                     <i class="fas fa-right-to-bracket"></i> Entrar
                 </button>
                 <button class="auth-link-btn" type="button" onclick="abrirRecuperacaoSenha()">
@@ -784,7 +794,17 @@
                         <input type="text" id="authCadastroResposta" placeholder="Resposta secreta">
                     </div>
                 </div>
-                <button class="btn" type="button" onclick="cadastrarUsuario()">
+                <div class="auth-terms">
+                    <input class="auth-terms-input" type="checkbox" id="authCadastroAceiteTermos">
+                    <label class="auth-terms-check" for="authCadastroAceiteTermos" aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
+                    <span class="auth-terms-text">
+                        Li e aceito os
+                        <a href="termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        e a
+                        <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.
+                    </span>
+                </div>
+                <button class="btn" id="btnAuthCadastro" type="button" onclick="cadastrarUsuario()" disabled>
                     <i class="fas fa-user-plus"></i> Criar conta
                 </button>
             </div>

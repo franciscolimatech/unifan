@@ -337,6 +337,14 @@ body {
     transform: scale(0.98);
 }
 
+.btn:disabled,
+.btn:disabled:hover {
+    opacity: 0.48;
+    cursor: not-allowed;
+    transform: none;
+    background: #1a3c2c;
+}
+
 .order-list {
     margin: 12px 0;
 }
@@ -1361,6 +1369,87 @@ body {
     cursor: pointer;
 }
 
+.auth-terms {
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1.5px solid #e0e7ed;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    line-height: 1.45;
+    margin: 4px 0 14px;
+    padding: 12px;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-terms:hover,
+.auth-terms:focus-within {
+    background: #f0f7f3;
+    border-color: rgba(26, 60, 44, 0.35);
+    box-shadow: 0 8px 18px rgba(26, 60, 44, 0.08);
+}
+
+.auth-terms-input {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.auth-terms-check {
+    align-items: center;
+    background: #ffffff;
+    border: 2px solid #b9c7bf;
+    border-radius: 6px;
+    display: inline-flex;
+    flex: 0 0 20px;
+    height: 20px;
+    justify-content: center;
+    margin-top: 1px;
+    transition: all 0.2s ease;
+    width: 20px;
+}
+
+.auth-terms-check::after {
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    content: "";
+    height: 9px;
+    opacity: 0;
+    transform: rotate(45deg) scale(0.6);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    width: 5px;
+}
+
+.auth-terms-input:checked + .auth-terms-check {
+    background: #1a3c2c;
+    border-color: #1a3c2c;
+    box-shadow: 0 0 0 4px rgba(26, 60, 44, 0.12);
+}
+
+.auth-terms-input:checked + .auth-terms-check::after {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+}
+
+.auth-terms-text {
+    color: #4a5b6e;
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auth-terms a {
+    color: #1a3c2c;
+    font-weight: 900;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.auth-terms a:hover {
+    color: #0f2a1e;
+}
+
 .auth-link-btn {
     border: none;
     background: transparent;
@@ -1423,5 +1512,14 @@ body {
 
     .auth-tab {
         padding: 9px;
+    }
+
+    .auth-terms {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .auth-terms-text {
+        font-size: 11px;
     }
 }

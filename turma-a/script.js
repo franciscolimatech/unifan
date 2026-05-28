@@ -5,6 +5,7 @@
         // ─────────────────────────────────────────────
         const AUTH_USUARIOS_KEY = 'cristovao_usuarios';
         const AUTH_SESSAO_KEY = 'cristovao_sessao_atual';
+        const VERSAO_TERMOS_ATUAL = '1.0.0';
 
         async function gerarHashSHA256(texto) {
             if (!window.crypto || !window.crypto.subtle) {
@@ -35,6 +36,49 @@
             return obterUsuarios().find(usuario => usuario.email === emailNormalizado) || null;
         }
 
+        function termosForamAceitos(tipo) {
+            const checkboxId = tipo === 'cadastro' ? 'authCadastroAceiteTermos' : 'authLoginAceiteTermos';
+            return Boolean(document.getElementById(checkboxId)?.checked);
+        }
+
+        function atualizarEstadoBotoesTermos() {
+            const btnLogin = document.getElementById('btnAuthLogin');
+            const btnCadastro = document.getElementById('btnAuthCadastro');
+
+            if (btnLogin) btnLogin.disabled = !termosForamAceitos('login');
+            if (btnCadastro) btnCadastro.disabled = !termosForamAceitos('cadastro');
+        }
+
+        function obterDadosAceiteTermos(dataAceite = new Date().toISOString()) {
+            return {
+                aceitou_termos: true,
+                data_aceite: dataAceite,
+                versao_termos: VERSAO_TERMOS_ATUAL
+            };
+        }
+
+        function usuarioTemTermosAtuais(usuario) {
+            return Boolean(
+                usuario &&
+                usuario.aceitou_termos === true &&
+                usuario.versao_termos === VERSAO_TERMOS_ATUAL
+            );
+        }
+
+        function atualizarAceiteUsuario(email, dataAceite) {
+            const usuarios = obterUsuarios();
+            const usuarioIndex = usuarios.findIndex(usuario => usuario.email === email.trim().toLowerCase());
+
+            if (usuarioIndex === -1) return null;
+
+            usuarios[usuarioIndex] = {
+                ...usuarios[usuarioIndex],
+                ...obterDadosAceiteTermos(dataAceite)
+            };
+            salvarUsuarios(usuarios);
+            return usuarios[usuarioIndex];
+        }
+
         async function cadastrarUsuario() {
             limparAuthMensagem();
 
@@ -44,6 +88,12 @@
             const confirmarSenha = document.getElementById('authCadastroConfirmarSenha').value;
             const pergunta = document.getElementById('authCadastroPergunta').value.trim();
             const resposta = document.getElementById('authCadastroResposta').value.trim().toLowerCase();
+
+            if (!termosForamAceitos('cadastro')) {
+                mostrarAuthMensagem('erro', 'Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.');
+                atualizarEstadoBotoesTermos();
+                return;
+            }
 
             if (!nome || !email || !senha || !confirmarSenha || !pergunta || !resposta) {
                 mostrarAuthMensagem('erro', 'Preencha todos os campos para criar a conta.');
@@ -72,6 +122,7 @@
 
             try {
                 const usuarios = obterUsuarios();
+                const dataAceite = new Date().toISOString();
                 usuarios.push({
                     id: `usr_${Date.now()}`,
                     nome,
@@ -79,7 +130,8 @@
                     senhaHash: await gerarHashSHA256(senha),
                     perguntaRecuperacao: pergunta,
                     respostaHash: await gerarHashSHA256(resposta),
-                    criadoEm: new Date().toISOString()
+                    criadoEm: new Date().toISOString(),
+                    ...obterDadosAceiteTermos(dataAceite)
                 });
 
                 salvarUsuarios(usuarios);
@@ -96,6 +148,12 @@
 
             const email = document.getElementById('authLoginEmail').value.trim().toLowerCase();
             const senha = document.getElementById('authLoginSenha').value;
+
+            if (!termosForamAceitos('login')) {
+                mostrarAuthMensagem('erro', 'Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.');
+                atualizarEstadoBotoesTermos();
+                return;
+            }
 
             if (!validarEmail(email) || !senha) {
                 mostrarAuthMensagem('erro', 'Informe e-mail e senha para entrar.');
@@ -115,11 +173,24 @@
                     return;
                 }
 
+                const dataAceite = new Date().toISOString();
+                const usuarioAtualizado = usuarioTemTermosAtuais(usuario)
+                    ? usuario
+                    : atualizarAceiteUsuario(email, dataAceite);
+
+                if (!usuarioAtualizado) {
+                    mostrarAuthMensagem('erro', 'Não foi possível salvar o aceite dos termos neste navegador.');
+                    return;
+                }
+
                 const sessao = {
-                    id: usuario.id,
-                    nome: usuario.nome,
-                    email: usuario.email,
-                    loginEm: new Date().toISOString()
+                    id: usuarioAtualizado.id,
+                    nome: usuarioAtualizado.nome,
+                    email: usuarioAtualizado.email,
+                    loginEm: new Date().toISOString(),
+                    aceitou_termos: usuarioAtualizado.aceitou_termos,
+                    data_aceite: usuarioAtualizado.data_aceite,
+                    versao_termos: usuarioAtualizado.versao_termos
                 };
 
                 localStorage.setItem(AUTH_SESSAO_KEY, JSON.stringify(sessao));
@@ -180,10 +251,17 @@
         function verificarSessao() {
             try {
                 const sessao = JSON.parse(localStorage.getItem(AUTH_SESSAO_KEY));
-                if (sessao && buscarUsuarioPorEmail(sessao.email)) {
+                const usuario = sessao ? buscarUsuarioPorEmail(sessao.email) : null;
+                const sessaoTemTermosAtuais = sessao &&
+                    sessao.aceitou_termos === true &&
+                    sessao.versao_termos === VERSAO_TERMOS_ATUAL;
+
+                if (sessao && usuario && sessaoTemTermosAtuais && usuarioTemTermosAtuais(usuario)) {
                     aplicarSessao(sessao);
                     return;
                 }
+
+                localStorage.removeItem(AUTH_SESSAO_KEY);
             } catch (error) {
                 localStorage.removeItem(AUTH_SESSAO_KEY);
             }
@@ -212,12 +290,15 @@
             document.getElementById('areaUsuarioLogado')?.setAttribute('hidden', '');
             document.getElementById('modalAuth')?.classList.add('open');
             abrirAbaAuth('login');
+            atualizarEstadoBotoesTermos();
             mostrarAuthMensagem('info', 'ℹ️ Faça login para acessar o sistema.');
         }
 
         function logout() {
             localStorage.removeItem(AUTH_SESSAO_KEY);
             document.getElementById('authLoginSenha').value = '';
+            document.getElementById('authLoginAceiteTermos').checked = false;
+            atualizarEstadoBotoesTermos();
             bloquearSistema();
         }
 
@@ -237,6 +318,7 @@
                 painel.classList.toggle('active', painel.dataset.authPanel === aba);
             });
 
+            atualizarEstadoBotoesTermos();
             limparAuthMensagem();
         }
 
@@ -304,12 +386,40 @@
         function existeSessaoAtiva() {
             try {
                 const sessao = JSON.parse(localStorage.getItem(AUTH_SESSAO_KEY));
-                return Boolean(sessao && buscarUsuarioPorEmail(sessao.email));
+                const usuario = sessao ? buscarUsuarioPorEmail(sessao.email) : null;
+                return Boolean(
+                    sessao &&
+                    usuario &&
+                    sessao.aceitou_termos === true &&
+                    sessao.versao_termos === VERSAO_TERMOS_ATUAL &&
+                    usuarioTemTermosAtuais(usuario)
+                );
             } catch (error) {
                 return false;
             }
         }
 
+        document.querySelectorAll('.auth-terms-input').forEach(checkbox => {
+            checkbox.addEventListener('change', atualizarEstadoBotoesTermos);
+        });
+        document.querySelectorAll('.auth-terms').forEach(areaTermos => {
+            areaTermos.addEventListener('click', (event) => {
+                if (
+                    event.target.closest('a') ||
+                    event.target.classList.contains('auth-terms-input') ||
+                    event.target.classList.contains('auth-terms-check')
+                ) {
+                    return;
+                }
+
+                const checkbox = areaTermos.querySelector('.auth-terms-input');
+                if (!checkbox) return;
+
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+        atualizarEstadoBotoesTermos();
         document.getElementById('btnLogout')?.addEventListener('click', logout);
         verificarSessao();
 
