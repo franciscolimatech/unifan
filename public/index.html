@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Cristóvão - Plataforma de Gestão Omnichannel</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Style Css -->
+    <link rel="stylesheet" href="style/style.css">
+
+
+</head>
+
+<body>
+    <!-- HEADER -->
+    <div class="top-bar">
+        <div class="logo-area">
+            <h1><i class="fas fa-hard-hat"></i> Cristóvão</h1>
+            <p>Materiais de Construção · Gestão Omnichannel</p>
+        </div>
+        <div class="metrics-header">
+            <div class="metric-chip">
+                <div class="value">1.000</div>
+                <div class="label">SKUs Ativos</div>
+            </div>
+            <div class="metric-chip">
+                <div class="value">35,11%</div>
+                <div class="label">Margem Geral</div>
+            </div>
+            <div class="metric-chip">
+                <div class="value">10%</div>
+                <div class="label">Trava de Desconto</div>
+            </div>
+        </div>
+        <div class="user-area" id="areaUsuarioLogado" hidden>
+            <div class="user-chip">
+                <i class="fas fa-user-circle"></i>
+                <span id="nomeUsuarioLogado">Usuário</span>
+            </div>
+            <button class="logout-btn" id="btnLogout" type="button">
+                <i class="fas fa-right-from-bracket"></i> Sair
+            </button>
+        </div>
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <div class="squad-nav">
+        <button class="squad-btn active" data-squad="vendas"><i class="fas fa-cash-register"></i> Vendas & PDV</button>
+        <button class="squad-btn" data-squad="financeiro"><i class="fas fa-chart-line"></i> Financeiro</button>
+        <button class="squad-btn" data-squad="producao"><i class="fas fa-tools"></i> Produção & OS</button>
+        <button class="squad-btn" data-squad="estoque"><i class="fas fa-boxes"></i> Estoque</button>
+        <button class="squad-btn" data-squad="logistica"><i class="fas fa-truck"></i> Logística</button>
+        <button class="squad-btn" data-squad="compras"><i class="fas fa-shopping-cart"></i> Compras</button>
+    </div>
+
+    <div class="dashboard">
+
+        <!-- SQUAD VENDAS -->
+        <div id="vendas-view" class="squad-view active-view">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cash-register"></i> PDV Inteligente</h3>
+                        <span class="badge">Online · 3 terminais</span>
+                    </div>
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-value">156</div>
+                            <div class="kpi-label">Vendas Hoje</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value">R$ 42k</div>
+                            <div class="kpi-label">Ticket Médio</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value">8 min</div>
+                            <div class="kpi-label">Tempo Checkout</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span><i class="fas fa-barcode"></i> Leitor Código Barras</span>
+                        <span class="badge">Ativo</span>
+                    </div>
+                    <div class="info-row">
+                        <span><i class="fas fa-mobile-alt"></i> Catálogo Digital Móvel</span>
+                        <span>32 consultas/hora</span>
+                    </div>
+                    <div class="info-row">
+                        <span><i class="fab fa-whatsapp"></i> Bot de Atendimento</span>
+                        <span>87 conversas hoje</span>
+                    </div>
+                    <button class="btn"><i class="fas fa-plus"></i> Nova Venda</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-simple"></i> Performance de Vendas</h3>
+                        <span class="badge">Meta Mensal: R$ 2.5M</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="vendasChart"></canvas>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 76%"></div>
+                    </div>
+                    <div class="info-row">
+                        <span>Produtos Mais Vendidos</span>
+                        <span>Cimento · Tijolo · Areia</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-headset"></i> Atendimento Omnichannel</h3>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-item">
+                            <span><i class="fab fa-whatsapp"></i> WhatsApp</span>
+                            <strong>45 atendimentos</strong>
+                        </div>
+                        <div class="order-item">
+                            <span><i class="fas fa-store"></i> Balcão</span>
+                            <strong>78 atendimentos</strong>
+                        </div>
+                        <div class="order-item">
+                            <span><i class="fas fa-phone-alt"></i> Telefone</span>
+                            <strong>33 atendimentos</strong>
+                        </div>
+                    </div>
+                    <div class="alert"
+                        style="background:#e8f5e9; border-left:4px solid #4caf50; padding:12px; border-radius:12px; margin-top:12px;">
+                        <i class="fas fa-robot"></i> Bot respondeu 82% das perguntas automaticamente
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-file-alt"></i> Manual de Usabilidade</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================
+             SQUAD FINANCEIRO — 
+             Grupo: Guilherme Freire, Francisco Lima, Pablo Henrique, Gustavo Ribeiro
+             ============================ -->
+        <div id="financeiro-view" class="squad-view">
+            <div class="grid">
+
+                <!-- CARD 1: Margem Segura — Tarefa 1 -->
+                <div class="card card-financeiro">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calculator"></i> Margem Segura</h3>
+                        <span class="badge">Algoritmo Ativo</span>
+                    </div>
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-value">35,11%</div>
+                            <div class="kpi-label">Margem Média Geral</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value">10%</div>
+                            <div class="kpi-label">Trava de Desconto</div>
+                        </div>
+                    </div>
+                    <!-- 8 categorias reais -->
+                    <div class="categorias-container">
+                        <div class="info-row">
+                            <span>Acabamento (121 itens)</span>
+                            <span>Margem: 35,16% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Construção Bruta (123 itens)</span>
+                            <span>Margem: 35,33% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Elétrica (127 itens)</span>
+                            <span>Margem: 35,46% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Ferragens (129 itens)</span>
+                            <span>Margem: 35,11% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Ferramentas (99 itens)</span>
+                            <span>Margem: 35,64% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Hidráulica (131 itens)</span>
+                            <span>Margem: 34,66% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Iluminação (139 itens)</span>
+                            <span>Margem: 34,70% | Desc. Máx: 10%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Pintura (130 itens)</span>
+                            <span>Margem: 35,04% | Desc. Máx: 10%</span>
+                        </div>
+                    </div>
+                    <button class="btn" id="btnSimularDesconto"><i class="fas fa-percent"></i> Simular Desconto</button>
+                </div>
+
+                <!-- CARD 2: Fluxo de Pagamentos — Tarefa 2 -->
+                <div class="card card-financeiro">
+                    <div class="card-header">
+                        <h3><i class="fas fa-credit-card"></i> Fluxo de Pagamentos</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pagamentosChart"></canvas>
+                    </div>
+                    <!-- Formas de pagamento com taxas reais -->
+                    <div class="pagamentos-container">
+                        <div class="info-row">
+                            <span><strong>Pix</strong> — Taxa: 0% · Liquidação D+0</span>
+                            <span style="color:#1a3c2c; font-weight:600;">Sem custo</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Cartão Débito</strong> — Taxa: 1,5%–2,5% · D+1</span>
+                            <span style="color:#1565c0; font-weight:600;">MDR</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Boleto</strong> — R$ 3,00–4,50 fixo · D+2</span>
+                            <span style="color:#e65100; font-weight:600;">Por emissão</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Crédito 1x</strong> — Taxa: 2,5%–4,0% · D+30</span>
+                            <span style="color:#6a1b9a; font-weight:600;">Gateway</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Crédito 2–6x</strong> — Taxa: 3,0%–5,5%</span>
+                            <span style="color:#6a1b9a; font-weight:600;">Absorvido lojista</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Crédito 7–12x</strong> — Taxa: 4,5%–7,0%</span>
+                            <span style="color:#b71c1c; font-weight:600;">+1,99% a.m. cliente</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="btnSimularParcelamento"><i class="fas fa-chart-line"></i>
+                        Simulador de Parcelamento</button>
+                </div>
+
+                <!-- CARD 3: Rentabilidade por Categoria — dados reais -->
+                <div class="card card-financeiro">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> Rentabilidade por Categoria</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="rentabilidadeChart"></canvas>
+                    </div>
+                    <div class="rentabilidade-info">
+                        <div class="info-row">
+                            <span>Fórmula aplicada</span>
+                            <span style="font-size:12px; color:#6b7a88;">(Venda − Custo) ÷ Venda × 100</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Maior margem</span>
+                            <span style="color:#1a3c2c; font-weight:600;">Ferramentas — 35,64%</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Menor margem</span>
+                            <span style="color:#e65100; font-weight:600;">Hidráulica — 34,66%</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-download"></i> Exportar Dados</button>
+                </div>
+
+                <!-- CARD 4: Emissão de Recibos/Faturas — Tarefa 3 -->
+                <div class="card card-financeiro">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-invoice"></i> Emissão de Recibos/Faturas</h3>
+                        <span class="badge">Tarefa 3</span>
+                    </div>
+                    <div class="faturas-info">
+                        <div class="info-row">
+                            <span><i class="fas fa-user"></i> Nome / Razão Social</span>
+                            <span style="color:#1a3c2c; font-size:12px;">Obrigatório</span>
+                        </div>
+                        <div class="info-row">
+                            <span><i class="fas fa-id-card"></i> CPF / CNPJ</span>
+                            <span style="color:#1a3c2c; font-size:12px;">Obrigatório</span>
+                        </div>
+                        <div class="info-row">
+                            <span><i class="fas fa-map-marker-alt"></i> Endereço Completo</span>
+                            <span style="color:#1a3c2c; font-size:12px;">Obrigatório para NF</span>
+                        </div>
+                        <div class="info-row">
+                            <span><i class="fas fa-percent"></i> ICMS (Bahia)</span>
+                            <span style="color:#6b7a88; font-size:12px;">12% — LC 87/1996</span>
+                        </div>
+                        <div class="info-row">
+                            <span><i class="fas fa-percent"></i> ISS</span>
+                            <span style="color:#6b7a88; font-size:12px;">2%–5% (municipal)</span>
+                        </div>
+                        <div class="info-row">
+                            <span><i class="fas fa-percent"></i> PIS / COFINS</span>
+                            <span style="color:#6b7a88; font-size:12px;">1,65% / 3%</span>
+                        </div>
+                    </div>
+                    <div
+                        style="background:#fff8e1; border-radius:10px; padding:10px; font-size:12px; color:#5d4037; margin-top:12px;">
+                        <i class="fas fa-info-circle"></i> Simples Nacional: ICMS/PIS/COFINS recolhidos via DAS. LGPD:
+                        dados criptografados, retenção mín. 5 anos.
+                    </div>
+                    <button class="btn" id="btnGerarRecibo"><i class="fas fa-file-alt"></i> Gerar Recibo</button>
+                </div>
+
+                <!-- CARD 5: Curva ABC -->
+                <div class="card card-financeiro">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> Curva ABC</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="curvaABCChart"></canvas>
+                    </div>
+                    <div class="abc-info">
+                        <div class="info-row">
+                            <span><strong>Classe A (70%)</strong></span>
+                            <span style="color:#1a3c2c; font-weight:600;">Produtos prioritários</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Classe B (20%)</strong></span>
+                            <span style="color:#ff9800; font-weight:600;">Produtos intermediários</span>
+                        </div>
+                        <div class="info-row">
+                            <span><strong>Classe C (10%)</strong></span>
+                            <span style="color:#9e9e9e; font-weight:600;">Produtos de baixa movimentação</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="btnAnaliseABC"><i class="fas fa-chart-simple"></i> Análise
+                        Detalhada</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SQUAD PRODUÇÃO -->
+        <div id="producao-view" class="squad-view">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clipboard-list"></i> Ordens de Serviço</h3>
+                        <span class="badge">15 ativas</span>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-item">
+                            <span>OS-2401 - Corte Madeira</span>
+                            <span class="status-badge status-warning">Em andamento</span>
+                        </div>
+                        <div class="order-item">
+                            <span>OS-2402 - Pintura</span>
+                            <span class="status-badge status-info">Aguardando Material</span>
+                        </div>
+                        <div class="order-item">
+                            <span>OS-2403 - Customização Porta</span>
+                            <span class="status-badge status-success">Concluída</span>
+                        </div>
+                    </div>
+                    <button class="btn"><i class="fas fa-plus"></i> Nova Ordem de Serviço</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chalkboard"></i> Kanban Produção</h3>
+                    </div>
+                    <div style="display:flex; gap:12px; justify-content:space-between; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:150px; background:#f8fafc; border-radius:12px; padding:12px;">
+                            <strong>📋 A Fazer</strong>
+                            <div class="order-item">Corte 50x</div>
+                            <div class="order-item">Lixamento</div>
+                        </div>
+                        <div style="flex:1; min-width:150px; background:#f8fafc; border-radius:12px; padding:12px;">
+                            <strong>⚙️ Fazendo</strong>
+                            <div class="order-item">Montagem 30x</div>
+                        </div>
+                        <div style="flex:1; min-width:150px; background:#f8fafc; border-radius:12px; padding:12px;">
+                            <strong>✅ Concluído</strong>
+                            <div class="order-item">Entrega OS-2403</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar" style="margin-top:16px;">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <div class="info-row">Produtividade: 65% · Meta: 80%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQUAD ESTOQUE -->
+        <div id="estoque-view" class="squad-view">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-database"></i> Endereçamento Logístico</h3>
+                        <span class="badge">95% mapeado</span>
+                    </div>
+                    <div class="info-row">Rua A (Cimento)</div>
+                    <div class="info-row">Rua B (Tijolo)</div>
+                    <div class="info-row">Prateleira 3 (Ferragens)</div>
+                    <button class="btn btn-secondary"><i class="fas fa-map"></i> Mapa de Endereçamento</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-qrcode"></i> Gerador SKU/Etiquetas</h3>
+                    </div>
+                    <div class="kpi-row">
+                        <div class="kpi-card">1.000 SKUs</div>
+                        <div class="kpi-card">98% etiquetados</div>
+                    </div>
+                    <button class="btn"><i class="fas fa-print"></i> Gerar Lote de Etiquetas</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-mobile-alt"></i> Inventário Cíclico</h3>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-item">✅ Cimento - 05/03</div>
+                        <div class="order-item">🔄 Tijolo - Em andamento</div>
+                        <div class="order-item">⏳ Areia - 12/03</div>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-camera"></i> App Inventário</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQUAD LOGÍSTICA -->
+        <div id="logistica-view" class="squad-view">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-map-marked-alt"></i> Roteirização de Entregas</h3>
+                    </div>
+                    <div id="logistics-map"></div>
+                    <div class="info-row">🚚 Caminhões em rota: 4</div>
+                    <div class="info-row">📦 Entregas hoje: 22</div>
+                    <button class="btn"><i class="fas fa-route"></i> Otimizar Rotas</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clipboard-list"></i> Lista de Pedidos (Encomendas)</h3>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-item">Cliente A - 50 sacos cimento</div>
+                        <div class="order-item">Cliente B - 1000 tijolos</div>
+                        <div class="order-item">Construtora C - 3 caminhões</div>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-truck"></i> Programar Encomendas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQUAD COMPRAS -->
+        <div id="compras-view" class="squad-view">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Alertas Estoque Crítico</h3>
+                    </div>
+                    <div
+                        style="background:#ffebee; border-left:4px solid #f44336; padding:12px; border-radius:10px; margin-bottom:8px;">
+                        ⚠️ Cimento CPII - abaixo do mínimo</div>
+                    <div style="background:#fff3e0; border-left:4px solid #ff9800; padding:12px; border-radius:10px;">⚠️
+                        Tijolo 8 furos - estoque baixo</div>
+                    <button class="btn" style="margin-top:16px;"><i class="fas fa-bell"></i> Configurar Alertas</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Curva ABC</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="curvaABCChartCompras"></canvas>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-chart-simple"></i> Dashboard Compras</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-truck"></i> Matriz de Fornecedores</h3>
+                    </div>
+                    <div class="order-list">
+                        <div class="order-item">Votorantim - Cimento</div>
+                        <div class="order-item">Cerâmica XYZ - Tijolos</div>
+                        <div class="order-item">Madeireira Sul - Madeira</div>
+                    </div>
+                    <button class="btn"><i class="fas fa-chart-bar"></i> Comparar Preços</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =====================
+         MODAL: SIMULADOR DE DESCONTO
+         Algoritmo "Margem Segura" — Tarefa 1
+         ===================== -->
+    <div class="modal-overlay" id="modalDesconto">
+        <div class="modal">
+            <h2><i class="fas fa-percent"></i> Simulador de Desconto — Margem Segura</h2>
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="simCategoria">
+                    <option value="35.16,23.67,44.43">Acabamento (Margem: 35,16%)</option>
+                    <option value="35.33,23.34,44.22">Construção Bruta (Margem: 35,33%)</option>
+                    <option value="35.46,23.13,44.44">Elétrica (Margem: 35,46%)</option>
+                    <option value="35.11,23.13,44.31">Ferragens (Margem: 35,11%)</option>
+                    <option value="35.64,23.29,44.36">Ferramentas (Margem: 35,64%)</option>
+                    <option value="34.66,23.10,44.37">Hidráulica (Margem: 34,66%)</option>
+                    <option value="34.70,23.15,44.04">Iluminação (Margem: 34,70%)</option>
+                    <option value="35.04,23.10,44.35">Pintura (Margem: 35,04%)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Preço de Venda (R$)</label>
+                <input type="number" id="simPreco" placeholder="Ex: 100.00" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Desconto desejado (%)</label>
+                <input type="number" id="simDesconto" placeholder="Ex: 5" min="0" max="100" step="0.1">
+            </div>
+            <div class="resultado-simulador" id="resultadoDesconto"></div>
+            <div class="modal-btns">
+                <button class="btn" onclick="calcularDesconto()"><i class="fas fa-calculator"></i> Calcular</button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalDesconto')"><i class="fas fa-times"></i>
+                    Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================
+         MODAL: SIMULADOR DE PARCELAMENTO
+         Tarefa 2 — Formas de Pagamento e Taxas
+         ===================== -->
+    <div class="modal-overlay" id="modalParcelamento">
+        <div class="modal">
+            <h2><i class="fas fa-credit-card"></i> Simulador de Parcelamento</h2>
+            <div class="form-group">
+                <label>Valor da Compra (R$)</label>
+                <input type="number" id="parValor" placeholder="Ex: 500.00" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <select id="parForma" onchange="atualizarInfoTaxa()">
+                    <option value="boleto,3.50,1">Boleto — R$ 3,50 fixo · D+2</option>
+                    <option value="credito1,0.03,1">Crédito 1x — 3% · D+30</option>
+                    <option value="credito2,0.04,2">Crédito 2x — 4% (absorvido lojista)</option>
+                    <option value="credito3,0.045,3">Crédito 3x — 4,5%</option>
+                    <option value="credito4,0.05,4">Crédito 4x — 5%</option>
+                    <option value="credito5,0.05,5">Crédito 5x — 5%</option>
+                    <option value="credito6,0.055,6">Crédito 6x — 5,5% (até aqui sem juros cliente)</option>
+                    <option value="credito7,0.055,7">Crédito 7x — 5,5% + 1,99% a.m. cliente</option>
+                    <option value="credito10,0.065,10">Crédito 10x — 6,5% + 1,99% a.m. cliente</option>
+                    <option value="credito12,0.07,12">Crédito 12x — 7% + 1,99% a.m. cliente</option>
+                </select>
+            </div>
+            <div class="taxa-info" id="taxaInfo">
+                ℹ️ Pix: sem custo ao lojista, liquidação instantânea. Ideal para à vista.
+            </div>
+            <div class="resultado-simulador" id="resultadoParcelamento"></div>
+            <div class="modal-btns">
+                <button class="btn" onclick="calcularParcelamento()"><i class="fas fa-calculator"></i> Calcular</button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalParcelamento')"><i
+                        class="fas fa-times"></i> Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================
+         MODAL: EMISSAO DE RECIBOS/FATURAS
+         Tarefa 3 - Financeiro
+         ===================== -->
+    <div class="modal-overlay" id="modalReciboFatura">
+        <div class="modal modal-financeiro">
+            <h2><i class="fas fa-file-invoice"></i> Emissão de Recibos/Faturas</h2>
+
+            <div class="finance-form-grid">
+                <div class="form-group">
+                    <label>Tipo de documento</label>
+                    <select id="docTipo">
+                        <option value="Recibo">Recibo</option>
+                        <option value="Fatura">Fatura</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="docValor" placeholder="Ex: 1250.00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Nome / Razão Social</label>
+                    <input type="text" id="docCliente" placeholder="Cliente ou empresa">
+                </div>
+                <div class="form-group">
+                    <label>CPF / CNPJ</label>
+                    <input type="text" id="docDocumento" placeholder="000.000.000-00">
+                </div>
+                <div class="form-group finance-wide">
+                    <label>Endereço completo</label>
+                    <input type="text" id="docEndereco" placeholder="Rua, número, bairro, cidade/UF">
+                </div>
+                <div class="form-group finance-wide">
+                    <label>Descrição do serviço/produto</label>
+                    <input type="text" id="docDescricao" placeholder="Materiais de construção">
+                </div>
+            </div>
+
+            <div class="taxa-info">
+                ICMS Bahia: 12% para referência fiscal. ISS, PIS e COFINS variam conforme operação e regime tributário.
+            </div>
+            <div class="resultado-simulador recibo-preview" id="resultadoReciboFatura"></div>
+            <div class="modal-btns">
+                <button class="btn" id="btnEmitirDocumento"><i class="fas fa-file-circle-check"></i> Emitir
+                    Documento</button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalReciboFatura')"><i
+                        class="fas fa-times"></i> Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================
+         MODAL: ANALISE DETALHADA DA CURVA ABC
+         Financeiro
+         ===================== -->
+    <div class="modal-overlay" id="modalAnaliseABC">
+        <div class="modal modal-financeiro">
+            <h2><i class="fas fa-chart-simple"></i> Análise Detalhada - Curva ABC</h2>
+
+            <div class="abc-summary-grid">
+                <div>
+                    <strong>Classe A</strong>
+                    <span>70% do faturamento</span>
+                    <small>Priorizar reposição, negociação e margem.</small>
+                </div>
+                <div>
+                    <strong>Classe B</strong>
+                    <span>20% do faturamento</span>
+                    <small>Acompanhar giro e promoções controladas.</small>
+                </div>
+                <div>
+                    <strong>Classe C</strong>
+                    <span>10% do faturamento</span>
+                    <small>Reduzir capital parado e revisar mix.</small>
+                </div>
+            </div>
+
+            <div class="abc-detail-table">
+                <div class="abc-detail-row abc-detail-head">
+                    <span>Classe</span>
+                    <span>Exemplos</span>
+                    <span>Ação financeira</span>
+                </div>
+                <div class="abc-detail-row">
+                    <span>A</span>
+                    <span>Cimento, areia, tijolo</span>
+                    <span>Compra recorrente, margem protegida e estoque mínimo alto.</span>
+                </div>
+                <div class="abc-detail-row">
+                    <span>B</span>
+                    <span>Ferragens, elétrica, hidráulica</span>
+                    <span>Revisar preço por categoria e negociar prazo com fornecedor.</span>
+                </div>
+                <div class="abc-detail-row">
+                    <span>C</span>
+                    <span>Itens sazonais e baixo giro</span>
+                    <span>Evitar compras grandes e usar campanhas para liberar estoque.</span>
+                </div>
+            </div>
+
+            <div class="resultado-simulador visible" id="resultadoAnaliseABC">
+                <p><strong>Leitura rápida:</strong> os produtos Classe A sustentam a maior parte do caixa. A Curva ABC
+                    ajuda o Financeiro a proteger margem, reduzir estoque parado e planejar compras com menos risco.</p>
+            </div>
+            <div class="modal-btns">
+                <button class="btn" id="btnRecalcularABC"><i class="fas fa-rotate"></i> Recalcular Cenário</button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalAnaliseABC')"><i class="fas fa-times"></i>
+                    Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================
+         MODAL OBRIGATORIO: AUTENTICACAO E ACESSO
+         Roadmap 15/05/2026
+         ===================== -->
+
+    <div id="modalAceiteTermos" class="modal-overlay">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2><i class="fas fa-file-signature"></i> Termos de Uso Atualizados</h2>
+                <p>Atualizamos nossos termos de uso e política de privacidade para refletir as novas integrações e
+                    regras do sistema.</p>
+            </div>
+
+            <div class="auth-box">
+                <div class="auth-terms-scroll-box"
+                    style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; max-height: 180px; overflow-y: auto; font-size: 13px; color: #4a5b6e; margin-bottom: 16px;">
+                    <p><strong>Prezado Usuário,</strong></p>
+                    <p>Ao continuar a utilizar a Plataforma Omnichannel Cristóvão Materiais de Construção, você concorda
+                        com o processamento de dados e com as simulações fiscais, financeiras e operacionais executadas
+                        em nosso ecossistema.</p>
+                    <p>Seus dados cadastrais agora são armazenados de forma criptografada via hashes seguros no MongoDB
+                        Atlas. Nosso sistema utiliza cookies estritamente necessários (HTTPOnly) para gerenciar sua
+                        sessão de forma stateless.</p>
+                </div>
+
+                <div class="auth-terms" style="margin-bottom: 20px; cursor: pointer;">
+                    <label
+                        style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; color: #1a2a3a;">
+                        <input type="checkbox" id="authTermsAceiteCheck" class="auth-terms-input"
+                            style="width: 18px; height: 18px; accent-color: #1a3c2c;">
+                        <span>Li e aceito os novos <a href="/termos-de-uso" target="_blank">Termos de Uso</a> e a <a
+                                href="/politica-de-privacidade" target="_blank">Política de Privacidade</a>.</span>
+                    </label>
+                </div>
+
+                <button class="btn" id="btnAceitarTermos" type="button" disabled
+                    style="width: 100%; transition: all 0.2s ease;">
+                    <i class="fas fa-check-circle"></i> Confirmar e Acessar o Sistema
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay auth-modal-overlay" id="modalAuth">
+        <div class="modal auth-modal">
+            <div class="auth-modal-header">
+                <div class="auth-icon" id="authModalIcon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2 id="authModalTitulo">Acesso ao Sistema</h2>
+                <p id="authModalSubtitulo">Entre com sua conta para acessar a plataforma Cristóvão</p>
+            </div>
+
+            <div class="auth-tabs" role="tablist" aria-label="Opções de autenticação">
+                <button class="auth-tab active" type="button" data-auth-tab="login" onclick="abrirAbaAuth('login')">
+                    Login
+                </button>
+                <button class="auth-tab" type="button" data-auth-tab="cadastro" onclick="abrirAbaAuth('cadastro')">
+                    Cadastro
+                </button>
+            </div>
+
+            <div class="auth-message info" id="authMensagem" hidden></div>
+
+            <div class="auth-tab-panel active" data-auth-panel="login">
+                <div class="form-group">
+                    <label for="authLoginEmail">E-mail</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="authLoginEmail" placeholder="seuemail@exemplo.com" autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authLoginSenha">Senha</label>
+                    <div class="password-field">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="authLoginSenha" placeholder="Digite sua senha"
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle" aria-label="Mostrar senha"
+                            onclick="toggleSenha('authLoginSenha', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="auth-terms">
+                    <input class="auth-terms-input" type="checkbox" id="authLoginAceiteTermos">
+                    <label class="auth-terms-check" for="authLoginAceiteTermos"
+                        aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
+                    <span class="auth-terms-text">
+                        Li e aceito os
+                        <a href="termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        e a
+                        <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de
+                            Privacidade</a>.
+                    </span>
+                </div>
+                <button class="btn" id="btnAuthLogin" type="button" onclick="loginUsuario()" disabled>
+                    <i class="fas fa-right-to-bracket"></i> Entrar
+                </button>
+                <button class="auth-link-btn" type="button" onclick="abrirRecuperacaoSenha()">
+                    Esqueci minha senha
+                </button>
+            </div>
+
+            <div class="auth-tab-panel" data-auth-panel="cadastro">
+                <div class="form-group">
+                    <label for="authCadastroNome">Nome completo</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="authCadastroNome" placeholder="Seu nome completo" autocomplete="name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authCadastroEmail">E-mail</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="authCadastroEmail" placeholder="seuemail@exemplo.com"
+                            autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authCadastroSenha">Senha</label>
+                    <div class="password-field">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="authCadastroSenha" placeholder="Mínimo de 6 caracteres"
+                            autocomplete="new-password">
+                        <button type="button" class="password-toggle" aria-label="Mostrar senha"
+                            onclick="toggleSenha('authCadastroSenha', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authCadastroConfirmarSenha">Confirmar senha</label>
+                    <div class="password-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="authCadastroConfirmarSenha" placeholder="Repita a senha"
+                            autocomplete="new-password">
+                        <button type="button" class="password-toggle" aria-label="Mostrar senha"
+                            onclick="toggleSenha('authCadastroConfirmarSenha', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authCadastroPergunta">Pergunta de recuperação</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-circle-question"></i>
+                        <input type="text" id="authCadastroPergunta"
+                            placeholder="Ex: Qual o nome da sua primeira escola?">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authCadastroResposta">Resposta de recuperação</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-shield-halved"></i>
+                        <input type="text" id="authCadastroResposta" placeholder="Resposta secreta">
+                    </div>
+                </div>
+                <div class="auth-terms">
+                    <input class="auth-terms-input" type="checkbox" id="authCadastroAceiteTermos">
+                    <label class="auth-terms-check" for="authCadastroAceiteTermos"
+                        aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
+                    <span class="auth-terms-text">
+                        Li e aceito os
+                        <a href="termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        e a
+                        <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de
+                            Privacidade</a>.
+                    </span>
+                </div>
+                <button class="btn" id="btnAuthCadastro" type="button" onclick="cadastrarUsuario()" disabled>
+                    <i class="fas fa-user-plus"></i> Criar conta
+                </button>
+            </div>
+
+            <div class="auth-tab-panel" data-auth-panel="recuperacao">
+                <div class="form-group">
+                    <label for="authRecEmail">E-mail cadastrado</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="authRecEmail" placeholder="seuemail@exemplo.com" autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authRecPergunta">Pergunta de recuperação</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-circle-question"></i>
+                        <input type="text" id="authRecPergunta" placeholder="Digite a pergunta cadastrada">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authRecResposta">Resposta de recuperação</label>
+                    <div class="auth-input-icon">
+                        <i class="fas fa-shield-halved"></i>
+                        <input type="text" id="authRecResposta" placeholder="Digite a resposta cadastrada">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="authRecNovaSenha">Nova senha</label>
+                    <div class="password-field">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="authRecNovaSenha" placeholder="Mínimo de 6 caracteres"
+                            autocomplete="new-password">
+                        <button type="button" class="password-toggle" aria-label="Mostrar senha"
+                            onclick="toggleSenha('authRecNovaSenha', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn" type="button" onclick="recuperarSenha()">
+                    <i class="fas fa-key"></i> Redefinir senha
+                </button>
+                <button class="auth-link-btn" type="button" onclick="voltarParaLogin()">
+                    Voltar ao login
+                </button>
+            </div>
+
+            <div class="auth-security-footer">
+                <i class="fas fa-shield-halved"></i>
+                Dados salvos apenas neste navegador para simulação acadêmica.
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/auth.js"></script> <!-- carrega primeiro -->
+    <script src="scripts/script.js"></script> <!-- usa as funções de auth -->
+
+</body>
+
+</html>

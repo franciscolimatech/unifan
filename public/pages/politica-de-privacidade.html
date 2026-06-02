@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Cristóvão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e9f5ef 0%, #f5f7fb 100%);
+            color: #1a2a3a;
+            font-family: "Inter", sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 28px;
+        }
+
+        .legal-page {
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        .legal-header {
+            background: linear-gradient(135deg, #1a3c2c 0%, #0f2a1e 100%);
+            border-radius: 24px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding: 32px;
+            box-shadow: 0 16px 36px rgba(26, 60, 44, 0.18);
+        }
+
+        .legal-header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .legal-header p {
+            color: rgba(255, 255, 255, 0.82);
+            max-width: 660px;
+        }
+
+        .legal-card {
+            background: #ffffff;
+            border: 1px solid #e0e7ed;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        section+section {
+            margin-top: 22px;
+        }
+
+        h2 {
+            color: #1a3c2c;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        p,
+        li {
+            color: #4a5b6e;
+            font-size: 15px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .legal-note {
+            background: #f0f7f3;
+            border-left: 4px solid #1a3c2c;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            padding: 14px 16px;
+        }
+
+        .legal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 26px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #1a3c2c;
+            border-radius: 14px;
+            color: #ffffff;
+            display: inline-flex;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 12px 18px;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #0f2a1e;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #eef2f8;
+            color: #1a3c2c;
+        }
+
+        .btn-secondary:hover {
+            background: #dfe8ef;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+            }
+
+            .legal-header,
+            .legal-card {
+                border-radius: 16px;
+                padding: 22px;
+            }
+
+            .legal-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="legal-page">
+        <header class="legal-header">
+            <h1>Política de Privacidade</h1>
+            <p>Cristóvão - Plataforma de Gestão Omnichannel</p>
+        </header>
+
+        <article class="legal-card">
+            <div class="legal-note">
+                <p>Esta política é acadêmica e simulada. O projeto não possui backend, API, banco externo ou servidor
+                    próprio para autenticação.</p>
+            </div>
+
+            <section>
+                <h2>1. Dados armazenados</h2>
+                <p>Para simular o acesso à plataforma, o navegador pode armazenar nome, e-mail, hash de senha, pergunta
+                    de recuperação, hash da resposta e informações de aceite dos termos.</p>
+            </section>
+
+            <section>
+                <h2>2. Onde os dados ficam</h2>
+                <p>Os dados são salvos no localStorage do próprio navegador, usando chaves locais do protótipo. Eles não
+                    são enviados a um servidor do projeto e podem ser apagados limpando os dados do site no navegador.
+                </p>
+            </section>
+
+            <section>
+                <h2>3. Finalidade</h2>
+                <ul>
+                    <li>Permitir login e cadastro simulados.</li>
+                    <li>Registrar que o usuário aceitou os Termos de Uso e esta Política de Privacidade.</li>
+                    <li>Demonstrar boas práticas de interface e consentimento em um protótipo acadêmico.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Segurança</h2>
+                <p>Senhas e respostas de recuperação são salvas em formato de hash SHA-256 quando o navegador oferece
+                    esse recurso. Ainda assim, por ser um protótipo local, não utilize senhas reais ou dados sensíveis.
+                </p>
+            </section>
+
+            <section>
+                <h2>5. Controle do usuário</h2>
+                <p>O usuário pode remover os dados limpando o armazenamento local do navegador. Como não há servidor
+                    real, o projeto não mantém cópias remotas desses dados.</p>
+            </section>
+
+            <div class="legal-actions">
+                <a class="btn" href="index.html">Voltar para a plataforma</a>
+                <a class="btn btn-secondary" href="termos-de-uso.html">Ver Termos de Uso</a>
+            </div>
+        </article>
+    </main>
+</body>
+
+</html>

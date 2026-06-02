@@ -1,0 +1,21 @@
+{
+  "name": "cristovao-omnichannel",
+  "version": "1.0.0",
+  "description": "Plataforma de Gestão Omnichannel Cristóvão - Backend Serverless",
+  "private": true,
+  "engines": {
+    "node": ">=20.x"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.21.0"
+  },
+  "scripts": {
+    "lint": "node --check api/**/*.js"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
