@@ -1,1 +1,75 @@
----
+# Cristóvão — Plataforma de Gestão Omnichannel
+
+Projeto acadêmico e protótipo web para demonstrar uma plataforma de apoio à gestão de uma loja de materiais de
+construção. O estado atual concentra-se na estabilização da autenticação, do controle de acesso e do aceite dos
+Termos de Uso e da Política de Privacidade.
+
+## Stack
+
+- Frontend estático com HTML, CSS e JavaScript.
+- Funções serverless Node.js na Vercel.
+- MongoDB Atlas.
+- `bcryptjs` para proteger senhas e respostas de recuperação.
+- JWT em cookie `httpOnly` para sessão.
+
+## Estrutura
+
+```text
+api/             Funções serverless de autenticação e aceite de termos
+lib/             Conexão MongoDB, autenticação, respostas e schemas
+public/          Interface, scripts, estilos, ativos e páginas legais
+setup-db.js      Criação dos índices necessários no MongoDB
+vercel.json      Rotas, diretório público e cabeçalhos da Vercel
+```
+
+## Variáveis de ambiente
+
+Configure as variáveis no ambiente local da Vercel ou no projeto hospedado. Não versionar valores reais.
+
+```text
+MONGODB_URI=mongodb+srv://<usuario>:<senha>@<cluster>/<banco>
+MONGODB_DB_NAME=cristovao
+JWT_SECRET=<segredo-longo-e-aleatorio>
+VERSAO_TERMOS_ATUAL=1.0.0
+```
+
+`MONGODB_DB_NAME` e `VERSAO_TERMOS_ATUAL` possuem os valores padrão mostrados acima. `MONGODB_URI` e `JWT_SECRET` são
+obrigatórias.
+
+## Execução local
+
+Requisitos: Node.js 20 ou superior e acesso a um projeto MongoDB Atlas.
+
+```bash
+npm install
+npx vercel dev
+```
+
+Depois, acesse a URL local informada pelo Vercel Dev. Para preparar os índices do banco, execute `node setup-db.js`
+com as variáveis de ambiente já configuradas.
+
+## Funcionalidades implementadas
+
+- Cadastro com aceite dos documentos legais.
+- Login e logout.
+- Sessão JWT em cookie `httpOnly`.
+- Restauração e validação da sessão pelo backend.
+- Recuperação de senha por pergunta e resposta cadastradas.
+- Bloqueio de acesso quando os termos atuais ainda não foram aceitos.
+- Registro de aceite e reaceite da versão atual dos termos.
+- Páginas de Termos de Uso e Política de Privacidade.
+
+## Ainda não implementado
+
+- Perfil e avatar.
+- Publicações e comentários.
+- Notificações.
+- Exportações funcionais e novos gráficos.
+- Aplicativos APK ou IPA.
+- Fluxo completo de consulta, alteração e exclusão de dados pessoais.
+
+## Status do roadmap
+
+- Fase 2 — Autenticação e Acesso: implementada, em estabilização.
+- Fase 3 — Termos e Condições: implementada, em estabilização.
+- Fase 4 em diante: fora do escopo da entrega atual e não implementada como funcionalidade nova.

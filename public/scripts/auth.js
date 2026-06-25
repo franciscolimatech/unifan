@@ -66,8 +66,12 @@ function termosForamAceitos(tipo) {
 function atualizarEstadoBotoesTermos() {
   const btnLogin   = document.getElementById('btnAuthLogin');
   const btnCadastro = document.getElementById('btnAuthCadastro');
+  const btnAceitarTermos = document.getElementById('btnAceitarTermos');
   if (btnLogin)    btnLogin.disabled    = !termosForamAceitos('login');
   if (btnCadastro) btnCadastro.disabled = !termosForamAceitos('cadastro');
+  if (btnAceitarTermos) {
+    btnAceitarTermos.disabled = !document.getElementById('authTermsAceiteCheck')?.checked;
+  }
 }
 
 function validarEmailFrontend(email) {
@@ -173,9 +177,8 @@ async function verificarSessao() {
       const { usuario, precisaAceitarTermos } = resultado.dados;
 
       if (precisaAceitarTermos) {
-        // Sessão válida mas termos desatualizados: aplica sessão parcial
-        // e exibe modal de aceite
-        aplicarSessao(usuario);
+        // Mantém o sistema bloqueado até o backend registrar o novo aceite.
+        setSessao(usuario);
         exibirModalAceiteTermos(usuario);
         return;
       }
@@ -340,16 +343,31 @@ async function cadastrarUsuario() {
 function exibirModalAceiteTermos(usuario) {
   const modal = document.getElementById('modalAceiteTermos');
   if (!modal) {
-    // Fallback: se não houver modal de termos, aceitar automaticamente
-    console.warn('[auth] Modal de aceite de termos (#modalAceiteTermos) não encontrado no DOM.');
-    aceitarTermos();
+    console.error('[auth] Modal de aceite de termos (#modalAceiteTermos) não encontrado no DOM.');
+    bloquearSistema();
+    mostrarAuthMensagem('erro', 'Não foi possível exibir os termos atualizados. Recarregue a página.');
     return;
   }
+
+  document.body.classList.add('auth-bloqueado');
+  document.querySelector('.squad-nav')?.classList.add('auth-locked');
+  document.querySelector('.dashboard')?.classList.add('auth-locked');
+  document.getElementById('modalAuth')?.classList.remove('open');
 
   // Preenche nome do usuário no modal, se houver placeholder
   const nomeEl = modal.querySelector('[data-usuario-nome]');
   if (nomeEl) nomeEl.textContent = usuario.nome;
 
+  const checkbox = document.getElementById('authTermsAceiteCheck');
+  if (checkbox) checkbox.checked = false;
+
+  const mensagem = document.getElementById('authTermosMensagem');
+  if (mensagem) {
+    mensagem.textContent = '';
+    mensagem.hidden = true;
+  }
+
+  atualizarEstadoBotoesTermos();
   modal.classList.add('open');
 }
 
@@ -358,6 +376,23 @@ function exibirModalAceiteTermos(usuario) {
  */
 async function aceitarTermos() {
   const btnAceitar = document.getElementById('btnAceitarTermos');
+  const checkbox = document.getElementById('authTermsAceiteCheck');
+  const mensagem = document.getElementById('authTermosMensagem');
+
+  if (!checkbox?.checked) {
+    if (mensagem) {
+      mensagem.textContent = 'Marque a confirmação de leitura e aceite para continuar.';
+      mensagem.hidden = false;
+    }
+    atualizarEstadoBotoesTermos();
+    return;
+  }
+
+  if (mensagem) {
+    mensagem.textContent = '';
+    mensagem.hidden = true;
+  }
+
   if (btnAceitar) btnAceitar.disabled = true;
 
   try {
@@ -378,12 +413,18 @@ async function aceitarTermos() {
       return;
     }
 
-    mostrarAuthMensagem('erro', resultado.erro || 'Não foi possível registrar o aceite dos termos.');
+    if (mensagem) {
+      mensagem.textContent = resultado.erro || 'Não foi possível registrar o aceite dos termos.';
+      mensagem.hidden = false;
+    }
   } catch (error) {
     console.error('[auth] Erro ao aceitar termos:', error);
-    mostrarAuthMensagem('erro', 'Erro de conexão ao registrar aceite. Tente novamente.');
+    if (mensagem) {
+      mensagem.textContent = 'Erro de conexão ao registrar aceite. Tente novamente.';
+      mensagem.hidden = false;
+    }
   } finally {
-    if (btnAceitar) btnAceitar.disabled = false;
+    atualizarEstadoBotoesTermos();
   }
 }
 
@@ -398,13 +439,33 @@ async function recuperarSenha() {
   const novaSenha       = document.getElementById('authRecNovaSenha')?.value || '';
   const confirmarSenha  = document.getElementById('authRecConfirmarSenha')?.value || '';
 
-  if (!validarEmailFrontend(email) || !pergunta || !resposta || !novaSenha) {
-    mostrarAuthMensagem('erro', 'Preencha todos os campos de recuperação.');
+  if (!validarEmailFrontend(email)) {
+    mostrarAuthMensagem('erro', 'Informe um e-mail válido.');
+    return;
+  }
+
+  if (!pergunta || !resposta) {
+    mostrarAuthMensagem('erro', 'Informe a pergunta e a resposta de recuperação.');
+    return;
+  }
+
+  if (!novaSenha) {
+    mostrarAuthMensagem('erro', 'Informe a nova senha.');
+    return;
+  }
+
+  if (!confirmarSenha) {
+    mostrarAuthMensagem('erro', 'Confirme a nova senha.');
     return;
   }
 
   if (novaSenha.length < 6) {
     mostrarAuthMensagem('erro', 'A nova senha precisa ter pelo menos 6 caracteres.');
+    return;
+  }
+
+  if (novaSenha !== confirmarSenha) {
+    mostrarAuthMensagem('erro', 'A nova senha e a confirmação precisam ser iguais.');
     return;
   }
 
@@ -541,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.auth-terms').forEach(area => {
     area.addEventListener('click', (e) => {
       if (e.target.closest('a') ||
+          e.target.closest('label') ||
           e.target.classList.contains('auth-terms-input') ||
           e.target.classList.contains('auth-terms-check')) return;
 
@@ -558,6 +620,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (overlay.id === 'modalAuth' && !getSessao()) {
         mostrarAuthMensagem('info', 'ℹ️ Faça login para acessar o sistema.');
+        return;
+      }
+
+      if (overlay.id === 'modalAceiteTermos') {
         return;
       }
 

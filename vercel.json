@@ -9,11 +9,11 @@
     },
     {
       "src": "/politica-de-privacidade",
-      "dest": "/public/politica-de-privacidade.html"
+      "dest": "/public/pages/politica-de-privacidade.html"
     },
     {
       "src": "/termos-de-uso",
-      "dest": "/public/termos-de-uso.html"
+      "dest": "/public/pages/termos-de-uso.html"
     },
     {
       "src": "/(.*)",

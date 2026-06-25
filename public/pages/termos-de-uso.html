@@ -141,7 +141,8 @@
 
         <article class="legal-card">
             <div class="legal-note">
-                <p>Este documento é acadêmico e simulado. A plataforma Cristóvão é um protótipo frontend, sem backend real, criado para fins de estudo e apresentação.</p>
+                <p>Este documento integra um projeto acadêmico e um protótipo funcional, criado para fins de estudo,
+                    demonstração e apresentação. A autenticação usa funções serverless Node.js e MongoDB Atlas.</p>
             </div>
 
             <section>
@@ -150,8 +151,10 @@
             </section>
 
             <section>
-                <h2>2. Conta local</h2>
-                <p>O cadastro e o login usam o armazenamento local do navegador. Isso significa que os dados ficam salvos somente no dispositivo utilizado, sem envio para servidores externos do projeto.</p>
+                <h2>2. Conta e acesso</h2>
+                <p>O cadastro, o login e a recuperação de senha são processados pelo backend. Senhas e respostas de
+                    recuperação são protegidas com bcrypt, e a sessão autenticada usa JWT armazenado em cookie
+                    httpOnly.</p>
             </section>
 
             <section>
@@ -159,7 +162,7 @@
                 <ul>
                     <li>Informar dados fictícios ou adequados ao ambiente acadêmico.</li>
                     <li>Não usar a plataforma como sistema real de gestão, venda, estoque, financeiro ou entrega.</li>
-                    <li>Manter sua senha local sob cuidado durante os testes.</li>
+                    <li>Manter suas credenciais sob cuidado durante os testes.</li>
                 </ul>
             </section>
 
@@ -174,7 +177,7 @@
             </section>
 
             <div class="legal-actions">
-                <a class="btn" href="index.html">Voltar para a plataforma</a>
+                <a class="btn" href="../index.html">Voltar para a plataforma</a>
                 <a class="btn btn-secondary" href="politica-de-privacidade.html">Ver Política de Privacidade</a>
             </div>
         </article>
