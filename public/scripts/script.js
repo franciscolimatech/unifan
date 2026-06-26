@@ -416,6 +416,165 @@ async function baixarExportacaoComunidade(formato) {
     }
 }
 
+function textoImagemRelatorio(imagemUrl) {
+    const valor = String(imagemUrl || '').trim();
+    if (!valor) return '';
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(valor)) {
+        return `Imagem enviada por upload/base64 (${valor.length} caracteres)`;
+    }
+    return valor;
+}
+
+function comentariosRelatorioHtml(comentarios) {
+    if (!comentarios?.length) {
+        return '<p class="empty">Sem comentarios.</p>';
+    }
+
+    return `
+        <ul>
+            ${comentarios.map((comentario) => `
+                <li>
+                    <strong>${escaparHtml(comentario.autor || comentario.autorNome || 'Usuario')}:</strong>
+                    ${escaparHtml(comentario.texto || '')}
+                    <span>${escaparHtml(formatarDataComunidade(comentario.criadoEm))}</span>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+}
+
+function montarRelatorioComunidadeHtml(dados) {
+    const posts = dados.posts || [];
+    const geradoEm = formatarDataComunidade(dados.geradoEm || new Date());
+
+    return `<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Relatorio da Comunidade</title>
+    <style>
+        body {
+            color: #1f2933;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 32px;
+        }
+        h1 {
+            color: #1a3c2c;
+            margin-bottom: 4px;
+        }
+        .meta {
+            color: #5f6f7a;
+            margin-bottom: 24px;
+        }
+        article {
+            border-top: 1px solid #d8dee4;
+            break-inside: avoid;
+            padding: 18px 0;
+        }
+        h2 {
+            font-size: 18px;
+            margin: 0 0 8px;
+        }
+        p {
+            margin: 6px 0;
+        }
+        .label {
+            color: #52616b;
+            font-weight: 700;
+        }
+        .image-url {
+            overflow-wrap: anywhere;
+        }
+        ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        li span {
+            color: #6b7780;
+            display: block;
+            font-size: 12px;
+        }
+        .empty {
+            color: #6b7780;
+            font-style: italic;
+        }
+        @media print {
+            body {
+                margin: 18mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatorio da Comunidade</h1>
+    <div class="meta">
+        Gerado em ${escaparHtml(geradoEm)}<br>
+        Total de posts: ${escaparHtml(posts.length)}
+    </div>
+    ${posts.length ? posts.map((post) => {
+        const imagem = textoImagemRelatorio(post.imagemUrl);
+
+        return `
+            <article>
+                <h2>${escaparHtml(post.autor || 'Usuario')}</h2>
+                <p><span class="label">Data:</span> ${escaparHtml(formatarDataComunidade(post.criadoEm))}</p>
+                <p><span class="label">Legenda:</span> ${escaparHtml(post.legenda || '')}</p>
+                ${imagem ? `<p class="image-url"><span class="label">Imagem:</span> ${escaparHtml(imagem)}</p>` : ''}
+                <p><span class="label">Comentarios:</span> ${escaparHtml(post.quantidadeComentarios || 0)}</p>
+                ${comentariosRelatorioHtml(post.comentarios || [])}
+            </article>
+        `;
+    }).join('') : '<p class="empty">Nenhum post encontrado para exportacao.</p>'}
+</body>
+</html>`;
+}
+
+async function imprimirExportacaoComunidadePdf() {
+    let janela = null;
+
+    try {
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Preparando relatorio imprimivel...');
+
+        janela = window.open('', '_blank');
+        if (!janela) {
+            throw new Error('Permita pop-ups para abrir o relatorio imprimivel.');
+        }
+
+        janela.document.open();
+        janela.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatorio da Comunidade</title></head><body><p>Preparando relatorio...</p></body></html>');
+        janela.document.close();
+
+        const resposta = await fetch('/api/export/comunidade?formato=json', {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+        const resultado = await resposta.json().catch(() => null);
+
+        if (!resposta.ok || !resultado?.ok) {
+            throw new Error(resultado?.erro || 'Nao foi possivel gerar o relatorio.');
+        }
+
+        janela.document.open();
+        janela.document.write(montarRelatorioComunidadeHtml(resultado.dados || {}));
+        janela.document.close();
+        janela.focus();
+        setTimeout(() => janela.print(), 300);
+
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Relatorio aberto. Use a impressao do navegador para salvar em PDF.');
+    } catch (error) {
+        if (janela && !janela.closed) {
+            janela.document.open();
+            janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Erro na exportacao</title></head><body><p>${escaparHtml(error.message || 'Erro ao gerar PDF.')}</p></body></html>`);
+            janela.document.close();
+        }
+        mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao gerar PDF.');
+    }
+}
+
 async function carregarConteudoComunidade() {
     const termo = document.getElementById('buscaConteudo')?.value.trim() || '';
     const [posts, notificacoes] = await Promise.all([
@@ -438,6 +597,7 @@ function inicializarComunidade() {
     document.getElementById('btnAtualizarComunidade')?.addEventListener('click', carregarConteudoComunidade);
     document.getElementById('btnExportarComunidadeCsv')?.addEventListener('click', () => baixarExportacaoComunidade('csv'));
     document.getElementById('btnExportarComunidadeJson')?.addEventListener('click', () => baixarExportacaoComunidade('json'));
+    document.getElementById('btnExportarComunidadePdf')?.addEventListener('click', imprimirExportacaoComunidadePdf);
     document.getElementById('buscaConteudo')?.addEventListener('input', () => {
         clearTimeout(window._communitySearchTimer);
         window._communitySearchTimer = setTimeout(carregarConteudoComunidade, 350);

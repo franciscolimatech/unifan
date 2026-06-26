@@ -223,7 +223,7 @@ body {
     align-items: end;
     display: grid;
     gap: 12px;
-    grid-template-columns: minmax(260px, 1fr) repeat(3, auto);
+    grid-template-columns: minmax(260px, 1fr) repeat(4, auto);
     margin-top: 24px;
 }
 
