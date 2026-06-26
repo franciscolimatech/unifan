@@ -335,6 +335,19 @@ function renderizarPosts(posts) {
                 </div>
                 ${imagem ? `<img class="feed-image" src="${escaparHtml(imagem)}" alt="Imagem da publicacao">` : ''}
                 <p class="feed-caption">${escaparHtml(post.legenda || '')}</p>
+                <div class="feed-actions">
+                    <button class="btn btn-secondary btn-share-post" type="button" data-share-toggle>
+                        <i class="fas fa-share-nodes"></i> Compartilhar
+                    </button>
+                </div>
+                <form class="share-form" data-post-id="${escaparHtml(post.id)}" hidden>
+                    <input type="email" name="destinatarioEmail" maxlength="254" placeholder="E-mail do destinatario" required>
+                    <input type="text" name="mensagem" maxlength="180" placeholder="Mensagem opcional">
+                    <button class="btn btn-secondary" type="submit">
+                        <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                    <div class="community-message share-message" hidden></div>
+                </form>
                 <div class="comments-list">
                     ${comentarios.length
                         ? comentarios.map((comentario) => `
@@ -354,6 +367,57 @@ function renderizarPosts(posts) {
             </article>
         `;
     }).join('');
+}
+
+function mostrarMensagemCompartilhamento(form, tipo, texto) {
+    const mensagem = form.querySelector('.share-message');
+    if (!mensagem) return;
+
+    mensagem.textContent = texto;
+    mensagem.className = `community-message share-message ${tipo}`;
+    mensagem.hidden = false;
+}
+
+function alternarFormularioCompartilhamento(botao) {
+    const post = botao.closest('.feed-post');
+    const form = post?.querySelector('.share-form');
+    if (!form) return;
+
+    form.hidden = !form.hidden;
+    if (!form.hidden) {
+        form.querySelector('input[name="destinatarioEmail"]')?.focus();
+    }
+}
+
+async function compartilharPost(form) {
+    const postId = form.dataset.postId;
+    const destinatarioEmail = form.elements.destinatarioEmail?.value.trim().toLowerCase() || '';
+    const mensagem = form.elements.mensagem?.value.trim() || '';
+
+    if (!destinatarioEmail) {
+        mostrarMensagemCompartilhamento(form, 'error', 'Informe o e-mail do destinatario.');
+        return;
+    }
+
+    try {
+        mostrarMensagemCompartilhamento(form, 'success', 'Enviando compartilhamento...');
+
+        const resultado = await apiComunidade('/api/compartilhamentos', 'POST', {
+            postId,
+            destinatarioEmail,
+            mensagem,
+        });
+
+        if (!resultado.ok) {
+            mostrarMensagemCompartilhamento(form, 'error', resultado.erro || 'Nao foi possivel compartilhar.');
+            return;
+        }
+
+        form.reset();
+        mostrarMensagemCompartilhamento(form, 'success', 'Publicacao compartilhada com sucesso.');
+    } catch (error) {
+        mostrarMensagemCompartilhamento(form, 'error', error.message || 'Erro ao compartilhar publicacao.');
+    }
 }
 
 function renderizarNotificacoes(notificacoes, naoLidas) {
@@ -601,6 +665,17 @@ function inicializarComunidade() {
     document.getElementById('buscaConteudo')?.addEventListener('input', () => {
         clearTimeout(window._communitySearchTimer);
         window._communitySearchTimer = setTimeout(carregarConteudoComunidade, 350);
+    });
+    document.getElementById('listaPosts')?.addEventListener('click', (e) => {
+        const botao = e.target.closest('[data-share-toggle]');
+        if (botao) alternarFormularioCompartilhamento(botao);
+    });
+    document.getElementById('listaPosts')?.addEventListener('submit', (e) => {
+        const form = e.target.closest('.share-form');
+        if (!form) return;
+
+        e.preventDefault();
+        compartilharPost(form);
     });
     document.getElementById('perfilAvatar')?.addEventListener('input', (e) => atualizarPreviewAvatar(e.target.value));
 

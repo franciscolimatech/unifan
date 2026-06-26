@@ -340,6 +340,39 @@ body {
     padding: 12px;
 }
 
+.feed-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 12px 12px;
+}
+
+.btn-share-post {
+    padding: 9px 12px;
+}
+
+.share-form {
+    border-top: 1px solid #edf2f7;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(160px, 1fr) minmax(140px, 1fr) auto;
+    padding: 12px;
+}
+
+.share-form[hidden] {
+    display: none;
+}
+
+.share-form input {
+    border: 2px solid #e0e7ed;
+    border-radius: 10px;
+    font-size: 13px;
+    padding: 10px;
+}
+
+.share-message {
+    grid-column: 1 / -1;
+}
+
 .comments-list {
     border-top: 1px solid #edf2f7;
     display: grid;
@@ -1757,7 +1790,8 @@ body {
 @media (max-width: 640px) {
 
     .community-toolbar,
-    .comment-form {
+    .comment-form,
+    .share-form {
         grid-template-columns: 1fr;
     }
 
