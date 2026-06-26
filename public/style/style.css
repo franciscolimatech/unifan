@@ -223,8 +223,13 @@ body {
     align-items: end;
     display: grid;
     gap: 12px;
-    grid-template-columns: minmax(260px, 1fr) auto;
+    grid-template-columns: minmax(260px, 1fr) repeat(3, auto);
     margin-top: 24px;
+}
+
+.community-toolbar .btn {
+    margin-top: 0;
+    white-space: nowrap;
 }
 
 .community-grid {

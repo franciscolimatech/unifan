@@ -377,6 +377,45 @@ function renderizarNotificacoes(notificacoes, naoLidas) {
     `).join('');
 }
 
+function nomeArquivoExportacao(resposta, formato) {
+    const disposition = resposta.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    if (match?.[1]) return match[1];
+
+    const data = new Date().toISOString().slice(0, 10);
+    return `comunidade-export-${data}.${formato}`;
+}
+
+async function baixarExportacaoComunidade(formato) {
+    try {
+        mostrarMensagemComunidade('exportMensagem', 'success', `Preparando exportacao ${formato.toUpperCase()}...`);
+
+        const resposta = await fetch(`/api/export/comunidade?formato=${encodeURIComponent(formato)}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+
+        if (!resposta.ok) {
+            const json = await resposta.json().catch(() => null);
+            throw new Error(json?.erro || 'Nao foi possivel gerar o arquivo de exportacao.');
+        }
+
+        const blob = await resposta.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivoExportacao(resposta, formato);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        mostrarMensagemComunidade('exportMensagem', 'success', `Exportacao ${formato.toUpperCase()} gerada com sucesso.`);
+    } catch (error) {
+        mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao exportar dados.');
+    }
+}
+
 async function carregarConteudoComunidade() {
     const termo = document.getElementById('buscaConteudo')?.value.trim() || '';
     const [posts, notificacoes] = await Promise.all([
@@ -397,6 +436,8 @@ function inicializarComunidade() {
     if (!document.getElementById('comunidade-view')) return;
 
     document.getElementById('btnAtualizarComunidade')?.addEventListener('click', carregarConteudoComunidade);
+    document.getElementById('btnExportarComunidadeCsv')?.addEventListener('click', () => baixarExportacaoComunidade('csv'));
+    document.getElementById('btnExportarComunidadeJson')?.addEventListener('click', () => baixarExportacaoComunidade('json'));
     document.getElementById('buscaConteudo')?.addEventListener('input', () => {
         clearTimeout(window._communitySearchTimer);
         window._communitySearchTimer = setTimeout(carregarConteudoComunidade, 350);
