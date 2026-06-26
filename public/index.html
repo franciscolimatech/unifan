@@ -718,10 +718,12 @@
                         style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; color: #1a2a3a;">
                         <input type="checkbox" id="authTermsAceiteCheck" class="auth-terms-input"
                             style="width: 18px; height: 18px; accent-color: #1a3c2c;">
-                        <span>Li e aceito os novos <a href="pages/termos-de-uso.html" target="_blank"
-                                rel="noopener noreferrer">Termos de Uso</a> e a <a
-                                href="pages/politica-de-privacidade.html" target="_blank"
-                                rel="noopener noreferrer">Política de Privacidade</a>.</span>
+                        <span>Li e aceito os novos <a href="pages/termos-de-uso.html"
+                                onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                                target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a <a
+                                href="pages/politica-de-privacidade.html"
+                                onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
+                                target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.</span>
                     </label>
                 </div>
 
@@ -783,9 +785,12 @@
                         aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
                     <span class="auth-terms-text">
                         Li e aceito os
-                        <a href="pages/termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        <a href="pages/termos-de-uso.html"
+                            onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                            target="_blank" rel="noopener noreferrer">Termos de Uso</a>
                         e a
                         <a href="pages/politica-de-privacidade.html" target="_blank"
+                            onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
                             rel="noopener noreferrer">Política de
                             Privacidade</a>.
                     </span>
@@ -859,9 +864,12 @@
                         aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
                     <span class="auth-terms-text">
                         Li e aceito os
-                        <a href="pages/termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>
+                        <a href="pages/termos-de-uso.html"
+                            onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                            target="_blank" rel="noopener noreferrer">Termos de Uso</a>
                         e a
                         <a href="pages/politica-de-privacidade.html" target="_blank"
+                            onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
                             rel="noopener noreferrer">Política de
                             Privacidade</a>.
                     </span>
@@ -929,6 +937,19 @@
                 <i class="fas fa-shield-halved"></i>
                 Protótipo acadêmico com autenticação serverless, MongoDB Atlas e sessão em cookie httpOnly.
             </div>
+        </div>
+    </div>
+
+    <div class="legal-document-overlay" id="modalDocumentoLegal" aria-hidden="true">
+        <div class="legal-document-modal" role="dialog" aria-modal="true" aria-labelledby="modalDocumentoLegalTitulo">
+            <header class="legal-document-header">
+                <h2 id="modalDocumentoLegalTitulo">Documento legal</h2>
+                <button class="legal-document-close" type="button" onclick="fecharModal('modalDocumentoLegal')"
+                    aria-label="Fechar documento legal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <iframe id="modalDocumentoLegalFrame" class="legal-document-frame" title="Documento legal"></iframe>
         </div>
     </div>
 
