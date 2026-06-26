@@ -1,0 +1,90 @@
+# Cristóvão Materiais — Plataforma Omnichannel
+
+Este projeto é um protótipo acadêmico feito para a disciplina da faculdade. A ideia é simular uma plataforma de gestão para a Cristóvão Materiais de Construção, reunindo áreas como vendas, financeiro, estoque, compras, logística e produção em uma única interface.
+
+Nesta etapa, o foco principal foi organizar a base do sistema, principalmente a parte de autenticação, cadastro, recuperação de senha e aceite dos Termos de Uso e da Política de Privacidade.
+
+## Tecnologias usadas
+
+* HTML, CSS e JavaScript
+* Node.js em funções serverless pela Vercel
+* MongoDB Atlas
+* bcryptjs para proteger senhas e respostas de recuperação
+* JWT em cookie httpOnly para manter a sessão do usuário
+
+## Estrutura do projeto
+
+```text
+api/             Endpoints de autenticação e aceite de termos
+lib/             Conexão com banco, autenticação, respostas e schemas
+public/          Telas, estilos, scripts, imagens e páginas legais
+setup-db.js      Script para criação dos índices no MongoDB
+vercel.json      Configuração de rotas e deploy na Vercel
+```
+
+## Variáveis de ambiente
+
+Para rodar o projeto, é necessário configurar as variáveis de ambiente. Os valores reais não devem ser enviados para o GitHub.
+
+```text
+MONGODB_URI=mongodb+srv://<usuario>:<senha>@<cluster>/<banco>
+MONGODB_DB_NAME=cristovao
+JWT_SECRET=<segredo-longo-e-aleatorio>
+VERSAO_TERMOS_ATUAL=1.0.0
+```
+
+As variáveis `MONGODB_URI` e `JWT_SECRET` são obrigatórias. As outras possuem valores padrão no projeto.
+
+## Como rodar localmente
+
+Requisitos:
+
+* Node.js 20 ou superior
+* Conta ou cluster configurado no MongoDB Atlas
+* Vercel CLI ou execução via `npx vercel dev`
+
+Passos básicos:
+
+```bash
+npm install
+npx vercel dev
+```
+
+Depois disso, basta acessar a URL local informada no terminal.
+
+Para criar os índices necessários no banco, use:
+
+```bash
+node setup-db.js
+```
+
+Esse comando só deve ser executado depois de configurar corretamente as variáveis de ambiente.
+
+## O que já foi feito
+
+* Tela principal com módulos de gestão.
+* Cadastro de usuário.
+* Login e logout.
+* Sessão usando JWT em cookie httpOnly.
+* Recuperação de senha por pergunta e resposta.
+* Aceite dos Termos de Uso e da Política de Privacidade.
+* Bloqueio de acesso quando o usuário ainda não aceitou os termos atuais.
+* Páginas de Termos de Uso e Política de Privacidade.
+* Integração inicial com MongoDB Atlas.
+
+## O que ainda falta
+
+* Edição de perfil e avatar.
+* Publicações, comentários e depoimentos.
+* Notificações.
+* Exportação real de dados em PDF, CSV ou Excel.
+* Filtros e relatórios dinâmicos.
+* Testes automatizados.
+* Geração de aplicativo mobile.
+* Publicação final em loja de aplicativos.
+
+## Status atual
+
+O projeto está com a base de autenticação e termos funcionando. As próximas etapas devem continuar a partir das funcionalidades do usuário, seguindo o roadmap da equipe.
+
+Ainda é um protótipo acadêmico, então algumas áreas da interface possuem dados demonstrativos e ainda não estão integradas ao banco.

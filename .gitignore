@@ -1,0 +1,20 @@
+# Arquivos inúteis do sistema operacional
+.DS_Store
+Thumbs.db
+*.log
+
+# Pastas de instalação (podem ser recriadas, não precisam ir pro GitHub)
+node_modules/
+
+# ARQUIVOS SECRETOS (NUNCA MANDAR PRO GITHUB)
+.env
+.env.local
+.env.development.local
+.env.production.local
+*.env.local
+
+# Pastas de configuração do VS Code e da Vercel
+.vscode/
+.vercel
+.output/
+.sixth
