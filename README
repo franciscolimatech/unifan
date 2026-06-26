@@ -68,6 +68,7 @@ Esse comando so deve ser executado depois de configurar corretamente as variavei
 | 3. Termos e condicoes | Implementada com ressalvas | Termos, politica, aceite/reaceite e bloqueio de acesso estao integrados ao backend. Ainda precisa teste manual completo com mudanca de versao dos termos. |
 | 4. Funcionalidades do usuario | Implementada, pendente teste real | Ja existem edicao de perfil, avatar, publicacoes, imagem por URL ou upload/base64, legendas, comentarios/depoimentos, notificacoes e busca de conteudo. Ainda precisa validacao ponta a ponta com MongoDB real. |
 | 5. Exportacao e compartilhamento | Implementada/parcial | As Fases 5.1 a 5.4 adicionam exportacao CSV/JSON, relatorio imprimivel para PDF, compartilhamento inicial de publicacoes e manifesto JSON autenticado da API. Excel `.xlsx`, PDF binario no backend, integracoes externas reais e compartilhamento de OS, pedidos ou NF ainda nao foram implementados. |
+| 6. Filtros, pesquisa e relatorios | Implementada/parcial | A Fase 6 adiciona relatorio dinamico da Comunidade com filtros por periodo, tipo, usuario, status e categoria, busca interna, ordenacao por colunas, agrupamento, totais, medias e grafico. Ainda precisa validacao com dados reais no MongoDB. |
 
 ## Funcionalidades ja implementadas
 
@@ -88,6 +89,7 @@ Esse comando so deve ser executado depois de configurar corretamente as variavei
 * Relatorio imprimivel da Comunidade para salvar como PDF pelo navegador.
 * Compartilhamento de publicacoes da Comunidade com outro usuario cadastrado.
 * Manifesto autenticado de integracao com endpoints JSON disponiveis.
+* Relatorio dinamico da Comunidade com filtros, busca, agrupamentos, totais e grafico.
 
 ## Exportacao e intercambio de dados
 
@@ -152,6 +154,22 @@ GET /api/export/comunidade?formato=json
 
 Nao ha integracao externa real, webhook ou token de API dedicado nesta fase. Webservices externos ficam como melhoria futura, depois que os contratos internos estiverem validados em ambiente real.
 
+## Filtros, pesquisa e relatorios
+
+A Fase 6 foi integrada usando os dados ja existentes da Comunidade. O relatorio fica na aba Comunidade e trabalha sobre as publicacoes carregadas do backend, sem criar entidades ficticias de OS, pedidos ou notas fiscais.
+
+Recursos incluidos:
+
+* filtro por periodo;
+* filtro por tipo de publicacao, usuario, status e categoria;
+* busca por termo dentro de legenda, autor e comentarios;
+* ordenacao por colunas da tabela;
+* agrupamento por categoria, usuario, status ou tipo;
+* totais, soma de comentarios e media de comentarios por post;
+* grafico de barra, pizza ou linha com Chart.js.
+
+Como ainda nao existem OS, pedidos ou NF persistidos no banco, esses relatorios ficam para extensao futura quando as entidades reais forem implementadas.
+
 ## Testes manuais recomendados
 
 Antes de iniciar a fase 5, validar em ambiente com MongoDB real:
@@ -176,7 +194,12 @@ Antes de iniciar a fase 5, validar em ambiente com MongoDB real:
 * compartilhar uma publicacao com outro usuario cadastrado;
 * verificar se o destinatario recebeu notificacao de compartilhamento;
 * consultar o manifesto autenticado em `/api/integracoes`;
-* conferir os metadados `schemaVersion`, `origem` e `campos` no JSON de exportacao.
+* conferir os metadados `schemaVersion`, `origem` e `campos` no JSON de exportacao;
+* aplicar filtros no relatorio da Comunidade por periodo, tipo, usuario, status e categoria;
+* buscar um termo dentro do relatorio;
+* ordenar a tabela do relatorio pelas colunas;
+* trocar agrupamento e tipo de grafico;
+* conferir totais, soma e media no rodape.
 
 ## Proximos passos
 
@@ -189,5 +212,6 @@ Antes de avancar para os proximos blocos da fase 5, recomenda-se executar os tes
 5. PDF binario no backend, se o projeto exigir geracao independente do navegador.
 6. Compartilhamento de OS, pedidos e NF quando essas entidades existirem no banco.
 7. APIs/webservices externos reais.
+8. Relatorios de OS, pedidos e NF quando essas entidades forem persistidas no banco.
 
 CSV e JSON foram escolhidos primeiro porque reaproveitam os dados ja existentes sem exigir layout complexo ou permissoes novas.

@@ -590,6 +590,101 @@
                     </button>
                 </div>
 
+                <div class="card community-report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-filter"></i> Relatorio da Comunidade</h3>
+                        <span class="badge" id="contadorRelatorio">0 itens</span>
+                    </div>
+                    <div class="report-controls">
+                        <div class="form-group">
+                            <label for="relatorioDataInicio">Data inicial</label>
+                            <input type="date" id="relatorioDataInicio">
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioDataFim">Data final</label>
+                            <input type="date" id="relatorioDataFim">
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioTipo">Tipo</label>
+                            <select id="relatorioTipo">
+                                <option value="">Todos</option>
+                                <option value="imagem">Com imagem</option>
+                                <option value="texto">Somente texto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioStatus">Status</label>
+                            <select id="relatorioStatus">
+                                <option value="">Todos</option>
+                                <option value="comentado">Com comentarios</option>
+                                <option value="sem-comentarios">Sem comentarios</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioCategoria">Categoria</label>
+                            <select id="relatorioCategoria">
+                                <option value="">Todas</option>
+                                <option value="com-imagem">Com imagem</option>
+                                <option value="somente-texto">Somente texto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioUsuario">Usuario</label>
+                            <input type="search" id="relatorioUsuario" placeholder="Filtrar por autor">
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioBusca">Busca no relatorio</label>
+                            <input type="search" id="relatorioBusca" placeholder="Termo em legenda ou comentario">
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioAgrupar">Agrupar por</label>
+                            <select id="relatorioAgrupar">
+                                <option value="categoria">Categoria</option>
+                                <option value="usuario">Usuario</option>
+                                <option value="status">Status</option>
+                                <option value="tipo">Tipo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorioGraficoTipo">Grafico</label>
+                            <select id="relatorioGraficoTipo">
+                                <option value="bar">Barra</option>
+                                <option value="pie">Pizza</option>
+                                <option value="line">Linha</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="report-summary" id="resumoRelatorioComunidade">
+                        <div class="empty-state">Carregando indicadores do relatorio...</div>
+                    </div>
+                    <div class="chart-container report-chart">
+                        <canvas id="graficoRelatorioComunidade"></canvas>
+                    </div>
+                    <div class="report-table-wrap">
+                        <table class="data-table report-table">
+                            <thead>
+                                <tr>
+                                    <th><button type="button" data-report-sort="criadoEm">Data</button></th>
+                                    <th><button type="button" data-report-sort="autorNome">Autor</button></th>
+                                    <th><button type="button" data-report-sort="categoria">Categoria</button></th>
+                                    <th><button type="button" data-report-sort="status">Status</button></th>
+                                    <th><button type="button" data-report-sort="comentarios">Comentarios</button></th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoRelatorioComunidade">
+                                <tr>
+                                    <td colspan="5">Carregando relatorio...</td>
+                                </tr>
+                            </tbody>
+                            <tfoot id="rodapeRelatorioComunidade">
+                                <tr>
+                                    <td colspan="5">Totais indisponiveis.</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="card community-feed-card">
                     <div class="card-header">
                         <h3><i class="fas fa-newspaper"></i> Publicacoes, Depoimentos e Comentarios</h3>

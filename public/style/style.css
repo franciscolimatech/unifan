@@ -240,6 +240,10 @@ body {
     grid-column: span 2;
 }
 
+.community-report-card {
+    grid-column: 1 / -1;
+}
+
 .community-form {
     display: grid;
     gap: 12px;
@@ -418,6 +422,69 @@ body {
 .notification-item.unread {
     background: #fff8e1;
     border-left: 4px solid #ff9800;
+}
+
+.report-controls {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.report-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin: 4px 0 16px;
+}
+
+.report-summary-item {
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.report-summary-item strong {
+    color: #1a3c2c;
+    display: block;
+    font-size: 20px;
+}
+
+.report-summary-item span {
+    color: #5f6f7a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.report-chart {
+    margin-bottom: 16px;
+    min-height: 260px;
+}
+
+.report-table-wrap {
+    overflow-x: auto;
+}
+
+.report-table th button {
+    background: transparent;
+    border: 0;
+    color: #4a5b6e;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+    padding: 0;
+    text-align: left;
+}
+
+.report-table th button:hover {
+    color: #1a3c2c;
+    text-decoration: underline;
+}
+
+.report-table tfoot td {
+    background: #f0f7f3;
+    color: #1a3c2c;
+    font-weight: 800;
 }
 
 .kpi-row {

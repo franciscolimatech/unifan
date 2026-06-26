@@ -44,6 +44,10 @@ function fecharModal(modalId) {
     }
 }
 
+let comunidadePostsCache = [];
+let relatorioOrdenacao = { campo: 'criadoEm', direcao: 'desc' };
+let graficoRelatorioComunidade = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     // ── NAVEGAÇÃO ENTRE SQUADS (ABAS DO PAINEL) ──
     const buttons = document.querySelectorAll('.squad-btn');
@@ -420,6 +424,271 @@ async function compartilharPost(form) {
     }
 }
 
+function textoRelatorio(valor) {
+    return String(valor || '').trim().toLowerCase();
+}
+
+function comentariosDoPost(post) {
+    return Array.isArray(post.comentarios) ? post.comentarios : [];
+}
+
+function tipoPostRelatorio(post) {
+    return post.imagemUrl ? 'imagem' : 'texto';
+}
+
+function categoriaPostRelatorio(post) {
+    return post.imagemUrl ? 'com-imagem' : 'somente-texto';
+}
+
+function statusPostRelatorio(post) {
+    return comentariosDoPost(post).length ? 'comentado' : 'sem-comentarios';
+}
+
+function rotuloRelatorio(campo, valor) {
+    const rotulos = {
+        'com-imagem': 'Com imagem',
+        'somente-texto': 'Somente texto',
+        imagem: 'Com imagem',
+        texto: 'Somente texto',
+        comentado: 'Com comentarios',
+        'sem-comentarios': 'Sem comentarios',
+    };
+
+    if (campo === 'usuario') return valor || 'Usuario';
+    return rotulos[valor] || valor || 'Nao informado';
+}
+
+function lerFiltrosRelatorio() {
+    return {
+        dataInicio: document.getElementById('relatorioDataInicio')?.value || '',
+        dataFim: document.getElementById('relatorioDataFim')?.value || '',
+        tipo: document.getElementById('relatorioTipo')?.value || '',
+        status: document.getElementById('relatorioStatus')?.value || '',
+        categoria: document.getElementById('relatorioCategoria')?.value || '',
+        usuario: textoRelatorio(document.getElementById('relatorioUsuario')?.value),
+        busca: textoRelatorio(document.getElementById('relatorioBusca')?.value),
+        agrupar: document.getElementById('relatorioAgrupar')?.value || 'categoria',
+        graficoTipo: document.getElementById('relatorioGraficoTipo')?.value || 'bar',
+    };
+}
+
+function postDentroDoPeriodo(post, filtros) {
+    const criadoEm = new Date(post.criadoEm);
+    if (Number.isNaN(criadoEm.getTime())) return false;
+
+    if (filtros.dataInicio) {
+        const inicio = new Date(`${filtros.dataInicio}T00:00:00`);
+        if (criadoEm < inicio) return false;
+    }
+
+    if (filtros.dataFim) {
+        const fim = new Date(`${filtros.dataFim}T23:59:59`);
+        if (criadoEm > fim) return false;
+    }
+
+    return true;
+}
+
+function postCombinaComBusca(post, termo) {
+    if (!termo) return true;
+
+    const comentarios = comentariosDoPost(post)
+        .map((comentario) => `${comentario.autorNome || ''} ${comentario.texto || ''}`)
+        .join(' ');
+    const texto = textoRelatorio(`${post.autorNome || ''} ${post.legenda || ''} ${comentarios}`);
+    return texto.includes(termo);
+}
+
+function filtrarPostsRelatorio(posts, filtros) {
+    return posts.filter((post) => {
+        if (!postDentroDoPeriodo(post, filtros)) return false;
+        if (filtros.tipo && tipoPostRelatorio(post) !== filtros.tipo) return false;
+        if (filtros.status && statusPostRelatorio(post) !== filtros.status) return false;
+        if (filtros.categoria && categoriaPostRelatorio(post) !== filtros.categoria) return false;
+        if (filtros.usuario && !textoRelatorio(post.autorNome).includes(filtros.usuario)) return false;
+        if (!postCombinaComBusca(post, filtros.busca)) return false;
+        return true;
+    });
+}
+
+function valorOrdenacaoRelatorio(post, campo) {
+    if (campo === 'criadoEm') return new Date(post.criadoEm).getTime() || 0;
+    if (campo === 'autorNome') return textoRelatorio(post.autorNome);
+    if (campo === 'categoria') return categoriaPostRelatorio(post);
+    if (campo === 'status') return statusPostRelatorio(post);
+    if (campo === 'comentarios') return comentariosDoPost(post).length;
+    return '';
+}
+
+function ordenarPostsRelatorio(posts) {
+    const direcao = relatorioOrdenacao.direcao === 'asc' ? 1 : -1;
+    const campo = relatorioOrdenacao.campo;
+
+    return [...posts].sort((a, b) => {
+        const valorA = valorOrdenacaoRelatorio(a, campo);
+        const valorB = valorOrdenacaoRelatorio(b, campo);
+
+        if (typeof valorA === 'number' && typeof valorB === 'number') {
+            return (valorA - valorB) * direcao;
+        }
+
+        return String(valorA).localeCompare(String(valorB), 'pt-BR') * direcao;
+    });
+}
+
+function agruparPostsRelatorio(posts, campo) {
+    return posts.reduce((grupos, post) => {
+        const chave = campo === 'usuario'
+            ? (post.autorNome || 'Usuario')
+            : campo === 'status'
+                ? statusPostRelatorio(post)
+                : campo === 'tipo'
+                    ? tipoPostRelatorio(post)
+                    : categoriaPostRelatorio(post);
+
+        const grupo = grupos.get(chave) || { chave, posts: 0, comentarios: 0 };
+        grupo.posts += 1;
+        grupo.comentarios += comentariosDoPost(post).length;
+        grupos.set(chave, grupo);
+        return grupos;
+    }, new Map());
+}
+
+function renderizarResumoRelatorio(posts) {
+    const resumo = document.getElementById('resumoRelatorioComunidade');
+    const contador = document.getElementById('contadorRelatorio');
+    if (!resumo) return;
+
+    const totalPosts = posts.length;
+    const totalComentarios = posts.reduce((total, post) => total + comentariosDoPost(post).length, 0);
+    const comImagem = posts.filter((post) => Boolean(post.imagemUrl)).length;
+    const mediaComentarios = totalPosts ? (totalComentarios / totalPosts).toFixed(1) : '0.0';
+
+    if (contador) contador.textContent = `${totalPosts} itens`;
+    resumo.innerHTML = [
+        ['Publicacoes', totalPosts],
+        ['Comentarios', totalComentarios],
+        ['Com imagem', comImagem],
+        ['Media comentarios/post', mediaComentarios],
+    ].map(([rotulo, valor]) => `
+        <div class="report-summary-item">
+            <strong>${escaparHtml(valor)}</strong>
+            <span>${escaparHtml(rotulo)}</span>
+        </div>
+    `).join('');
+}
+
+function renderizarTabelaRelatorio(posts) {
+    const corpo = document.getElementById('corpoRelatorioComunidade');
+    const rodape = document.getElementById('rodapeRelatorioComunidade');
+    if (!corpo || !rodape) return;
+
+    if (!posts.length) {
+        corpo.innerHTML = '<tr><td colspan="5">Nenhum item encontrado para os filtros atuais.</td></tr>';
+        rodape.innerHTML = '<tr><td colspan="5">Total: 0 publicacoes | Comentarios: 0 | Media: 0.0</td></tr>';
+        return;
+    }
+
+    corpo.innerHTML = posts.map((post) => {
+        const comentarios = comentariosDoPost(post).length;
+        const legenda = post.legenda ? `<br><small>${escaparHtml(post.legenda)}</small>` : '';
+
+        return `
+            <tr>
+                <td>${escaparHtml(formatarDataComunidade(post.criadoEm))}</td>
+                <td>${escaparHtml(post.autorNome || 'Usuario')}</td>
+                <td>${escaparHtml(rotuloRelatorio('categoria', categoriaPostRelatorio(post)))}${legenda}</td>
+                <td>${escaparHtml(rotuloRelatorio('status', statusPostRelatorio(post)))}</td>
+                <td>${escaparHtml(comentarios)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const totalComentarios = posts.reduce((total, post) => total + comentariosDoPost(post).length, 0);
+    const mediaComentarios = posts.length ? (totalComentarios / posts.length).toFixed(1) : '0.0';
+    rodape.innerHTML = `
+        <tr>
+            <td colspan="5">Total: ${escaparHtml(posts.length)} publicacoes | Soma de comentarios: ${escaparHtml(totalComentarios)} | Media: ${escaparHtml(mediaComentarios)} comentarios por post</td>
+        </tr>
+    `;
+}
+
+function renderizarGraficoRelatorio(posts, filtros) {
+    const canvas = document.getElementById('graficoRelatorioComunidade');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const grupos = Array.from(agruparPostsRelatorio(posts, filtros.agrupar).values());
+    const labels = grupos.map((grupo) => rotuloRelatorio(filtros.agrupar, grupo.chave));
+    const postsPorGrupo = grupos.map((grupo) => grupo.posts);
+    const comentariosPorGrupo = grupos.map((grupo) => grupo.comentarios);
+    const tipo = ['bar', 'pie', 'line'].includes(filtros.graficoTipo) ? filtros.graficoTipo : 'bar';
+
+    if (graficoRelatorioComunidade) {
+        graficoRelatorioComunidade.destroy();
+    }
+
+    graficoRelatorioComunidade = new Chart(canvas, {
+        type: tipo,
+        data: {
+            labels,
+            datasets: tipo === 'pie'
+                ? [{
+                    label: 'Publicacoes',
+                    data: postsPorGrupo,
+                    backgroundColor: ['#1a3c2c', '#ff9800', '#1565c0', '#6a1b9a', '#2e7d32'],
+                }]
+                : [
+                    {
+                        label: 'Publicacoes',
+                        data: postsPorGrupo,
+                        backgroundColor: '#1a3c2c',
+                        borderColor: '#1a3c2c',
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Comentarios',
+                        data: comentariosPorGrupo,
+                        backgroundColor: '#ff9800',
+                        borderColor: '#ff9800',
+                        tension: 0.3,
+                    },
+                ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+            },
+            scales: tipo === 'pie' ? {} : {
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+        },
+    });
+}
+
+function renderizarRelatorioComunidade() {
+    const filtros = lerFiltrosRelatorio();
+    const filtrados = ordenarPostsRelatorio(filtrarPostsRelatorio(comunidadePostsCache, filtros));
+
+    renderizarResumoRelatorio(filtrados);
+    renderizarTabelaRelatorio(filtrados);
+    renderizarGraficoRelatorio(filtrados, filtros);
+}
+
+function atualizarOrdenacaoRelatorio(campo) {
+    if (relatorioOrdenacao.campo === campo) {
+        relatorioOrdenacao.direcao = relatorioOrdenacao.direcao === 'asc' ? 'desc' : 'asc';
+    } else {
+        relatorioOrdenacao = {
+            campo,
+            direcao: campo === 'criadoEm' || campo === 'comentarios' ? 'desc' : 'asc',
+        };
+    }
+
+    renderizarRelatorioComunidade();
+}
+
 function renderizarNotificacoes(notificacoes, naoLidas) {
     const lista = document.getElementById('listaNotificacoes');
     const contador = document.getElementById('contadorNotificacoes');
@@ -646,7 +915,11 @@ async function carregarConteudoComunidade() {
         apiComunidade('/api/notificacoes'),
     ]);
 
-    if (posts.ok) renderizarPosts(posts.dados.posts || []);
+    if (posts.ok) {
+        comunidadePostsCache = posts.dados.posts || [];
+        renderizarPosts(comunidadePostsCache);
+        renderizarRelatorioComunidade();
+    }
     if (notificacoes.ok) {
         renderizarNotificacoes(
             notificacoes.dados.notificacoes || [],
@@ -665,6 +938,23 @@ function inicializarComunidade() {
     document.getElementById('buscaConteudo')?.addEventListener('input', () => {
         clearTimeout(window._communitySearchTimer);
         window._communitySearchTimer = setTimeout(carregarConteudoComunidade, 350);
+    });
+    [
+        'relatorioDataInicio',
+        'relatorioDataFim',
+        'relatorioTipo',
+        'relatorioStatus',
+        'relatorioCategoria',
+        'relatorioUsuario',
+        'relatorioBusca',
+        'relatorioAgrupar',
+        'relatorioGraficoTipo',
+    ].forEach((id) => {
+        document.getElementById(id)?.addEventListener('input', renderizarRelatorioComunidade);
+        document.getElementById(id)?.addEventListener('change', renderizarRelatorioComunidade);
+    });
+    document.querySelectorAll('[data-report-sort]').forEach((botao) => {
+        botao.addEventListener('click', () => atualizarOrdenacaoRelatorio(botao.dataset.reportSort));
     });
     document.getElementById('listaPosts')?.addEventListener('click', (e) => {
         const botao = e.target.closest('[data-share-toggle]');
