@@ -13,7 +13,7 @@
     "mongodb": "^6.21.0"
   },
   "scripts": {
-    "lint": "node --check api/**/*.js"
+    "lint": "node scripts/check-js.js"
   },
   "devDependencies": {
     "dotenv": "^17.4.2"

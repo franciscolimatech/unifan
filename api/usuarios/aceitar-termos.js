@@ -98,6 +98,7 @@ module.exports = async function handler(req, res) {
     return sucesso(res, {
       mensagem: 'Termos aceitos com sucesso.',
       versaoTermosAceita: VERSAO_TERMOS_ATUAL,
+      versaoTermosAtual: VERSAO_TERMOS_ATUAL,
     });
   } catch (err) {
     console.error('[aceitar-termos] Erro interno:', err);

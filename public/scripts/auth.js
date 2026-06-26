@@ -31,7 +31,13 @@
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
-const VERSAO_TERMOS_ATUAL = '1.0.0';
+let VERSAO_TERMOS_ATUAL = '1.0.0';
+
+function atualizarVersaoTermosAtual(versao) {
+  if (typeof versao === 'string' && versao.trim()) {
+    VERSAO_TERMOS_ATUAL = versao.trim();
+  }
+}
 
 // ─── Utilitários de UI ─────────────────────────────────────────────────────────
 
@@ -174,7 +180,8 @@ async function verificarSessao() {
     const resultado = await chamarAPI('/api/auth/sessao', 'GET');
 
     if (resultado.httpStatus === 200 && resultado.ok) {
-      const { usuario, precisaAceitarTermos } = resultado.dados;
+      const { usuario, precisaAceitarTermos, versaoTermosAtual } = resultado.dados;
+      atualizarVersaoTermosAtual(versaoTermosAtual);
 
       if (precisaAceitarTermos) {
         // Mantém o sistema bloqueado até o backend registrar o novo aceite.
@@ -220,7 +227,8 @@ async function loginUsuario() {
     const resultado = await chamarAPI('/api/auth/login', 'POST', { email, senha });
 
     if (resultado.ok) {
-      const { usuario, precisaAceitarTermos } = resultado.dados;
+      const { usuario, precisaAceitarTermos, versaoTermosAtual } = resultado.dados;
+      atualizarVersaoTermosAtual(versaoTermosAtual);
 
       if (precisaAceitarTermos) {
         // Login OK, mas termos desatualizados: bloquear em modal de termos
@@ -310,6 +318,7 @@ async function cadastrarUsuario() {
     });
 
     if (resultado.ok) {
+      atualizarVersaoTermosAtual(resultado.dados?.versaoTermosAtual);
       // Cadastro + login automático: sessão já foi criada pelo backend
       aplicarSessao(resultado.dados.usuario);
       return;
@@ -401,11 +410,12 @@ async function aceitarTermos() {
     });
 
     if (resultado.ok) {
+      atualizarVersaoTermosAtual(resultado.dados?.versaoTermosAtual);
       document.getElementById('modalAceiteTermos')?.classList.remove('open');
 
       const sessao = getSessao();
       if (sessao) {
-        aplicarSessao({ ...sessao, versaoTermosAceita: VERSAO_TERMOS_ATUAL });
+        aplicarSessao({ ...sessao, versaoTermosAceita: resultado.dados?.versaoTermosAceita || VERSAO_TERMOS_ATUAL });
       } else {
         // Sessão não estava em memória: reverificar
         await verificarSessao();

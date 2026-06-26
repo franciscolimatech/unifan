@@ -16,7 +16,7 @@
  *   "perguntaRecuperacao": "Nome do seu primeiro pet?",
  *   "respostaRecuperacao": "bolinha",
  *   "aceitouTermos":      true,
- *   "versaoTermos":       "1.0.0"
+ *   "versaoTermos":       "1.0.0" // opcional; o backend grava a versao atual
  * }
  *
  * Respostas:
@@ -55,7 +55,6 @@ module.exports = async function handler(req, res) {
     perguntaRecuperacao,
     respostaRecuperacao,
     aceitouTermos,
-    versaoTermos,
   } = req.body || {};
 
   const nomeLimpo        = typeof nome === 'string' ? nome.trim() : '';
@@ -86,10 +85,6 @@ module.exports = async function handler(req, res) {
 
   if (aceitouTermos !== true) {
     return erro(res, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.', 400, 'TERMOS_NAO_ACEITOS');
-  }
-
-  if (versaoTermos !== VERSAO_TERMOS_ATUAL) {
-    return erro(res, `Versão dos termos inválida. Versão esperada: ${VERSAO_TERMOS_ATUAL}.`, 400, 'VERSAO_TERMOS_INVALIDA');
   }
 
   // ── Operações de banco ──────────────────────────────────────────────
@@ -152,6 +147,7 @@ module.exports = async function handler(req, res) {
           email: emailLimpo,
           versaoTermosAceita: VERSAO_TERMOS_ATUAL,
         },
+        versaoTermosAtual: VERSAO_TERMOS_ATUAL,
       },
       201
     );

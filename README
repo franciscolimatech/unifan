@@ -1,30 +1,31 @@
-# Cristóvão Materiais — Plataforma Omnichannel
+# Cristovao Materiais - Plataforma Omnichannel
 
-Este projeto é um protótipo acadêmico feito para a disciplina da faculdade. A ideia é simular uma plataforma de gestão para a Cristóvão Materiais de Construção, reunindo áreas como vendas, financeiro, estoque, compras, logística e produção em uma única interface.
+Este projeto e um prototipo academico para simular uma plataforma de gestao da Cristovao Materiais de Construcao. A interface reune modulos de vendas, financeiro, producao, estoque, logistica, compras e comunidade em uma unica aplicacao web.
 
-Nesta etapa, o foco principal foi organizar a base do sistema, principalmente a parte de autenticação, cadastro, recuperação de senha e aceite dos Termos de Uso e da Política de Privacidade.
+O projeto usa frontend estatico com HTML, CSS e JavaScript, funcoes serverless Node.js na Vercel, MongoDB Atlas, bcryptjs para senhas/respostas de recuperacao e JWT em cookie httpOnly para sessao.
 
 ## Tecnologias usadas
 
 * HTML, CSS e JavaScript
-* Node.js em funções serverless pela Vercel
+* Node.js em funcoes serverless pela Vercel
 * MongoDB Atlas
-* bcryptjs para proteger senhas e respostas de recuperação
-* JWT em cookie httpOnly para manter a sessão do usuário
+* bcryptjs para proteger senhas e respostas de recuperacao
+* JWT em cookie httpOnly para manter a sessao do usuario
 
 ## Estrutura do projeto
 
 ```text
-api/             Endpoints de autenticação e aceite de termos
-lib/             Conexão com banco, autenticação, respostas e schemas
-public/          Telas, estilos, scripts, imagens e páginas legais
-setup-db.js      Script para criação dos índices no MongoDB
-vercel.json      Configuração de rotas e deploy na Vercel
+api/             Endpoints de autenticacao, usuarios, posts e notificacoes
+lib/             Conexao com banco, autenticacao, respostas e schemas
+public/          Telas, estilos, scripts, imagens e paginas legais
+scripts/         Scripts auxiliares de validacao local
+setup-db.js      Script para criacao dos indices no MongoDB
+vercel.json      Configuracao de rotas e deploy na Vercel
 ```
 
-## Variáveis de ambiente
+## Variaveis de ambiente
 
-Para rodar o projeto, é necessário configurar as variáveis de ambiente. Os valores reais não devem ser enviados para o GitHub.
+Para rodar o projeto, configure as variaveis abaixo. Os valores reais nao devem ser enviados para o GitHub.
 
 ```text
 MONGODB_URI=mongodb+srv://<usuario>:<senha>@<cluster>/<banco>
@@ -33,7 +34,7 @@ JWT_SECRET=<segredo-longo-e-aleatorio>
 VERSAO_TERMOS_ATUAL=1.0.0
 ```
 
-As variáveis `MONGODB_URI` e `JWT_SECRET` são obrigatórias. As outras possuem valores padrão no projeto.
+As variaveis `MONGODB_URI` e `JWT_SECRET` sao obrigatorias. As outras possuem valores padrao no projeto.
 
 ## Como rodar localmente
 
@@ -41,50 +42,76 @@ Requisitos:
 
 * Node.js 20 ou superior
 * Conta ou cluster configurado no MongoDB Atlas
-* Vercel CLI ou execução via `npx vercel dev`
+* Vercel CLI ou execucao via `npx vercel dev`
 
-Passos básicos:
+Passos basicos:
 
 ```bash
 npm install
 npx vercel dev
 ```
 
-Depois disso, basta acessar a URL local informada no terminal.
-
-Para criar os índices necessários no banco, use:
+Para criar os indices necessarios no banco, use:
 
 ```bash
 node setup-db.js
 ```
 
-Esse comando só deve ser executado depois de configurar corretamente as variáveis de ambiente.
+Esse comando so deve ser executado depois de configurar corretamente as variaveis de ambiente.
 
-## O que já foi feito
+## Status por fase do roadmap
 
-* Tela principal com módulos de gestão.
-* Cadastro de usuário.
+| Fase | Status | Observacao |
+| --- | --- | --- |
+| 1. Definicao e recorte tecnico | Parcial/documentada | O README e a interface documentam o recorte geral e os setores, mas ainda nao ha documento formal de pesquisa, dependencias e hierarquia entre equipes. |
+| 2. Autenticacao e acesso | Implementada com ressalvas | Cadastro, login, sessao, logout e recuperacao de senha usam backend, MongoDB, bcrypt e JWT em cookie httpOnly. Ainda faltam testes reais e protecoes adicionais como rate limit. |
+| 3. Termos e condicoes | Implementada com ressalvas | Termos, politica, aceite/reaceite e bloqueio de acesso estao integrados ao backend. Ainda precisa teste manual completo com mudanca de versao dos termos. |
+| 4. Funcionalidades do usuario | Implementada, pendente teste real | Ja existem edicao de perfil, avatar, publicacoes, imagem por URL ou upload/base64, legendas, comentarios/depoimentos, notificacoes e busca de conteudo. Ainda precisa validacao ponta a ponta com MongoDB real. |
+| 5. Exportacao e compartilhamento | Proximo passo, nao iniciada | A fase 5 ainda nao foi implementada. O pacote mais seguro para iniciar e exportacao CSV/JSON antes de PDF e compartilhamento. |
+
+## Funcionalidades ja implementadas
+
+* Tela principal com modulos de gestao.
+* Cadastro de usuario no MongoDB.
 * Login e logout.
-* Sessão usando JWT em cookie httpOnly.
-* Recuperação de senha por pergunta e resposta.
-* Aceite dos Termos de Uso e da Política de Privacidade.
-* Bloqueio de acesso quando o usuário ainda não aceitou os termos atuais.
-* Páginas de Termos de Uso e Política de Privacidade.
-* Integração inicial com MongoDB Atlas.
+* Sessao usando JWT em cookie httpOnly.
+* Recuperacao de senha por pergunta/resposta, com confirmacao de nova senha.
+* Aceite dos Termos de Uso e da Politica de Privacidade.
+* Bloqueio de acesso quando o usuario ainda nao aceitou os termos atuais.
+* Paginas legais e modal de documentos legais.
+* Edicao de perfil com nome, e-mail e avatar.
+* Publicacoes com legenda e imagem por URL ou upload/base64.
+* Comentarios/depoimentos em publicacoes.
+* Notificacoes geradas por eventos da comunidade.
+* Busca de conteudo por legenda, autor ou comentario.
 
-## O que ainda falta
+## Testes manuais recomendados
 
-* Edição de perfil e avatar.
-* Publicações, comentários e depoimentos.
-* Notificações.
-* Exportação real de dados em PDF, CSV ou Excel.
-* Filtros e relatórios dinâmicos.
-* Testes automatizados.
-* Geração de aplicativo mobile.
-* Publicação final em loja de aplicativos.
+Antes de iniciar a fase 5, validar em ambiente com MongoDB real:
 
-## Status atual
+* cadastro novo com aceite de termos;
+* login;
+* logout;
+* recuperacao de senha;
+* atualizacao de perfil/avatar;
+* criacao de post com legenda;
+* criacao de post com URL de imagem;
+* criacao de post com upload/base64;
+* comentario em post;
+* notificacao gerada por comentario;
+* busca por legenda;
+* busca por autor;
+* busca por comentario;
+* marcar notificacoes como lidas.
 
-O projeto está com a base de autenticação e termos funcionando. As próximas etapas devem continuar a partir das funcionalidades do usuário, seguindo o roadmap da equipe.
+## Proximos passos
 
-Ainda é um protótipo acadêmico, então algumas áreas da interface possuem dados demonstrativos e ainda não estão integradas ao banco.
+Antes da fase 5, recomenda-se executar os testes manuais acima e corrigir qualquer comportamento divergente. Para a fase 5, a ordem sugerida e:
+
+1. Exportacao CSV.
+2. Exportacao JSON.
+3. Exportacao PDF.
+4. Compartilhamento entre usuarios.
+5. APIs/webservices externos.
+
+CSV e JSON sao os proximos passos mais seguros porque reaproveitam os dados ja existentes sem exigir layout complexo ou permissoes novas.
