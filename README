@@ -67,7 +67,7 @@ Esse comando so deve ser executado depois de configurar corretamente as variavei
 | 2. Autenticacao e acesso | Implementada com ressalvas | Cadastro, login, sessao, logout e recuperacao de senha usam backend, MongoDB, bcrypt e JWT em cookie httpOnly. Ainda faltam testes reais e protecoes adicionais como rate limit. |
 | 3. Termos e condicoes | Implementada com ressalvas | Termos, politica, aceite/reaceite e bloqueio de acesso estao integrados ao backend. Ainda precisa teste manual completo com mudanca de versao dos termos. |
 | 4. Funcionalidades do usuario | Implementada, pendente teste real | Ja existem edicao de perfil, avatar, publicacoes, imagem por URL ou upload/base64, legendas, comentarios/depoimentos, notificacoes e busca de conteudo. Ainda precisa validacao ponta a ponta com MongoDB real. |
-| 5. Exportacao e compartilhamento | Iniciada/parcial | As Fases 5.1, 5.2 e 5.3 adicionam exportacao CSV/JSON, relatorio imprimivel para PDF e compartilhamento inicial de publicacoes da Comunidade entre usuarios. Excel `.xlsx`, PDF binario no backend, webservices externos e compartilhamento de OS, pedidos ou NF ainda nao foram implementados. |
+| 5. Exportacao e compartilhamento | Implementada/parcial | As Fases 5.1 a 5.4 adicionam exportacao CSV/JSON, relatorio imprimivel para PDF, compartilhamento inicial de publicacoes e manifesto JSON autenticado da API. Excel `.xlsx`, PDF binario no backend, integracoes externas reais e compartilhamento de OS, pedidos ou NF ainda nao foram implementados. |
 
 ## Funcionalidades ja implementadas
 
@@ -87,6 +87,7 @@ Esse comando so deve ser executado depois de configurar corretamente as variavei
 * Exportacao autenticada da Comunidade em CSV e JSON.
 * Relatorio imprimivel da Comunidade para salvar como PDF pelo navegador.
 * Compartilhamento de publicacoes da Comunidade com outro usuario cadastrado.
+* Manifesto autenticado de integracao com endpoints JSON disponiveis.
 
 ## Exportacao e intercambio de dados
 
@@ -111,6 +112,16 @@ Dados sensiveis nao sao exportados: senha, hashes, resposta de recuperacao, e-ma
 
 O PDF atual nao e um arquivo binario gerado pelo backend. Ele e um relatorio HTML imprimivel criado no frontend com `window.print()`, suficiente para validacao inicial sem novas dependencias. Geracao de PDF no servidor e exportacao Excel `.xlsx` ficam como melhorias futuras.
 
+O JSON de exportacao inclui metadados para intercambio de dados:
+
+* `schemaVersion`;
+* `origem`;
+* `geradoEm`;
+* `limite`;
+* `totalPosts`;
+* `campos`;
+* `posts`.
+
 ## Compartilhamento entre usuarios
 
 A Fase 5.3 inclui um compartilhamento inicial usando publicacoes da Comunidade, que ja existem como dados persistidos. O usuario logado pode compartilhar uma publicacao informando o e-mail de outro usuario cadastrado e uma mensagem curta opcional:
@@ -122,6 +133,24 @@ POST /api/compartilhamentos
 O endpoint exige sessao valida via cookie httpOnly, valida a publicacao, valida o destinatario na colecao `users`, impede auto-compartilhamento, grava o registro em `shared_items` e cria uma notificacao para o destinatario. Senhas, hashes, cookies, tokens e campos internos de autenticacao nao sao retornados.
 
 OS, pedidos e notas fiscais ainda nao foram adicionados como entidades persistidas no banco. O compartilhamento desses dados fica como extensao futura quando essas entidades existirem no backend.
+
+## API de integracao
+
+A Fase 5.4 adiciona um manifesto simples da API:
+
+```text
+GET /api/integracoes
+```
+
+Esse endpoint e autenticado para manter o mesmo padrao de protecao das APIs do projeto. Ele nao retorna dados de negocio, apenas documenta contratos disponiveis para intercambio: nome do sistema, versao da API, data de geracao, endpoints, metodos HTTP, parametros aceitos, corpo esperado e observacoes de autenticacao.
+
+O intercambio inicial e feito por JSON autenticado, principalmente pelo endpoint:
+
+```text
+GET /api/export/comunidade?formato=json
+```
+
+Nao ha integracao externa real, webhook ou token de API dedicado nesta fase. Webservices externos ficam como melhoria futura, depois que os contratos internos estiverem validados em ambiente real.
 
 ## Testes manuais recomendados
 
@@ -145,7 +174,9 @@ Antes de iniciar a fase 5, validar em ambiente com MongoDB real:
 * exportar a Comunidade em JSON;
 * abrir o relatorio imprimivel da Comunidade e salvar como PDF pelo navegador;
 * compartilhar uma publicacao com outro usuario cadastrado;
-* verificar se o destinatario recebeu notificacao de compartilhamento.
+* verificar se o destinatario recebeu notificacao de compartilhamento;
+* consultar o manifesto autenticado em `/api/integracoes`;
+* conferir os metadados `schemaVersion`, `origem` e `campos` no JSON de exportacao.
 
 ## Proximos passos
 
@@ -153,9 +184,10 @@ Antes de avancar para os proximos blocos da fase 5, recomenda-se executar os tes
 
 1. Validar CSV/JSON/PDF imprimivel da Comunidade com MongoDB real.
 2. Validar compartilhamento de publicacoes e notificacoes com usuarios reais no MongoDB.
-3. Exportacao Excel `.xlsx`, se a equipe realmente precisar desse formato.
-4. PDF binario no backend, se o projeto exigir geracao independente do navegador.
-5. Compartilhamento de OS, pedidos e NF quando essas entidades existirem no banco.
-6. APIs/webservices externos.
+3. Validar o manifesto `/api/integracoes` e os metadados JSON em ambiente real.
+4. Exportacao Excel `.xlsx`, se a equipe realmente precisar desse formato.
+5. PDF binario no backend, se o projeto exigir geracao independente do navegador.
+6. Compartilhamento de OS, pedidos e NF quando essas entidades existirem no banco.
+7. APIs/webservices externos reais.
 
 CSV e JSON foram escolhidos primeiro porque reaproveitam os dados ja existentes sem exigir layout complexo ou permissoes novas.

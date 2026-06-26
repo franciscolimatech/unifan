@@ -5,6 +5,15 @@ const { verificarSessaoReq } = require('../../lib/auth');
 const { sucesso, erro, metodaNaoPermitido } = require('../../lib/resposta');
 
 const LIMITE_POSTS_EXPORTACAO = 200;
+const CAMPOS_EXPORTACAO_JSON = [
+  { nome: 'id', tipo: 'string', descricao: 'Identificador da publicacao.' },
+  { nome: 'autor', tipo: 'string', descricao: 'Nome publico do autor da publicacao.' },
+  { nome: 'legenda', tipo: 'string', descricao: 'Texto da publicacao.' },
+  { nome: 'imagemUrl', tipo: 'string', descricao: 'URL ou data URL base64 da imagem, quando existir.' },
+  { nome: 'criadoEm', tipo: 'string ISO-8601', descricao: 'Data de criacao da publicacao.' },
+  { nome: 'quantidadeComentarios', tipo: 'number', descricao: 'Total de comentarios exportados no post.' },
+  { nome: 'comentarios', tipo: 'array', descricao: 'Comentarios com autor, texto e data de criacao.' },
+];
 
 function formatarData(valor) {
   if (!valor) return '';
@@ -115,10 +124,13 @@ module.exports = async function handler(req, res) {
 
   if (formato === 'json') {
     return sucesso(res, {
+      schemaVersion: 'comunidade.export.v1',
+      origem: 'unifan.comunidade',
       formato: 'json',
       geradoEm: formatarData(new Date()),
       limite: LIMITE_POSTS_EXPORTACAO,
       totalPosts: dados.length,
+      campos: CAMPOS_EXPORTACAO_JSON,
       posts: dados,
     });
   }
