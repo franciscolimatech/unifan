@@ -10,6 +10,12 @@ const {
 } = require('../../lib/auth');
 const { sucesso, erro, metodaNaoPermitido } = require('../../lib/resposta');
 
+function avatarPermitido(valor) {
+  if (!valor) return true;
+  if (valor.length > 950000) return false;
+  return /^https?:\/\//i.test(valor) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(valor);
+}
+
 function usuarioPublico(usuario) {
   return {
     id: usuario._id.toString(),
@@ -54,6 +60,10 @@ module.exports = async function handler(req, res) {
     return erro(res, 'Informe um e-mail valido.', 400, 'EMAIL_INVALIDO');
   }
 
+  if (!avatarPermitido(avatarLimpo)) {
+    return erro(res, 'Use uma URL http(s) ou uma imagem valida em base64.', 400, 'AVATAR_INVALIDO');
+  }
+
   const emailEmUso = await users.findOne(
     { email: emailLimpo, _id: { $ne: userId } },
     { projection: { _id: 1 } }
@@ -64,7 +74,14 @@ module.exports = async function handler(req, res) {
 
   await users.updateOne(
     { _id: userId },
-    { $set: { nome: nomeLimpo, email: emailLimpo, avatar: avatarLimpo, atualizadoEm: new Date() } }
+    {
+      $set: {
+        nome: nomeLimpo,
+        email: emailLimpo,
+        avatar: avatarLimpo,
+        atualizadoEm: new Date(),
+      },
+    }
   );
 
   await db.collection('posts').updateMany(

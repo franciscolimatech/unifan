@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
   const post = await db.collection('posts').findOne(
     { _id: postId },
-    { projection: { autorId: 1, autorNome: 1 } }
+    { projection: { autorId: 1 } }
   );
 
   if (!post) {
@@ -68,13 +68,17 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  return sucesso(res, {
-    comentario: {
-      id: resultado.insertedId.toString(),
-      autorId: autorId.toString(),
-      autorNome: comentario.autorNome,
-      texto: comentario.texto,
-      criadoEm: comentario.criadoEm,
+  return sucesso(
+    res,
+    {
+      comentario: {
+        id: resultado.insertedId.toString(),
+        autorId: autorId.toString(),
+        autorNome: comentario.autorNome,
+        texto: comentario.texto,
+        criadoEm: comentario.criadoEm,
+      },
     },
-  }, 201);
+    201
+  );
 };

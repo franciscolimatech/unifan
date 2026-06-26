@@ -5,8 +5,29 @@ const { getDb } = require('../../lib/mongodb');
 const { verificarSessaoReq } = require('../../lib/auth');
 const { sucesso, erro, metodaNaoPermitido } = require('../../lib/resposta');
 
+function imagemPermitida(valor) {
+  if (!valor) return true;
+  if (valor.length > 950000) return false;
+  return /^https?:\/\//i.test(valor) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(valor);
+}
+
+function escaparRegex(valor) {
+  return valor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizarComentario(comentario) {
+  return {
+    id: comentario._id.toString(),
+    autorId: comentario.autorId.toString(),
+    autorNome: comentario.autorNome,
+    texto: comentario.texto,
+    criadoEm: comentario.criadoEm,
+  };
+}
+
 function normalizarPost(post, comentariosPorPost) {
   const id = post._id.toString();
+
   return {
     id,
     autorId: post.autorId.toString(),
@@ -42,18 +63,19 @@ module.exports = async function handler(req, res) {
       return erro(res, 'A legenda deve ter no maximo 280 caracteres.', 400, 'LEGENDA_LONGA');
     }
 
-    if (imagemLimpa && imagemLimpa.length > 950000) {
-      return erro(res, 'A imagem enviada e muito grande para este prototipo.', 400, 'IMAGEM_GRANDE');
+    if (!imagemPermitida(imagemLimpa)) {
+      return erro(res, 'Use uma URL http(s) ou uma imagem valida em base64.', 400, 'IMAGEM_INVALIDA');
     }
 
+    const autorId = new ObjectId(usuario.sub);
     const autor = await db.collection('users').findOne(
-      { _id: new ObjectId(usuario.sub) },
+      { _id: autorId },
       { projection: { nome: 1, avatar: 1 } }
     );
 
     const agora = new Date();
     const novoPost = {
-      autorId: new ObjectId(usuario.sub),
+      autorId,
       autorNome: autor?.nome || usuario.nome,
       autorAvatar: autor?.avatar || null,
       imagemUrl: imagemLimpa,
@@ -63,25 +85,38 @@ module.exports = async function handler(req, res) {
     };
 
     const resultado = await db.collection('posts').insertOne(novoPost);
+
     await db.collection('notifications').insertOne({
-      userId: new ObjectId(usuario.sub),
+      userId: autorId,
       tipo: 'sistema',
       mensagem: 'Sua publicacao foi criada com sucesso.',
       lida: false,
       criadoEm: agora,
     });
 
-    return sucesso(res, {
-      post: normalizarPost({ ...novoPost, _id: resultado.insertedId }, new Map()),
-    }, 201);
+    return sucesso(
+      res,
+      { post: normalizarPost({ ...novoPost, _id: resultado.insertedId }, new Map()) },
+      201
+    );
   }
 
   const termo = typeof req.query?.q === 'string' ? req.query.q.trim() : '';
+  const termoRegex = termo ? escaparRegex(termo) : '';
+  const comentariosEncontrados = termo
+    ? await db.collection('comments')
+        .find({ texto: { $regex: termoRegex, $options: 'i' } })
+        .project({ postId: 1 })
+        .limit(50)
+        .toArray()
+    : [];
+  const postIdsPorComentario = comentariosEncontrados.map((comentario) => comentario.postId);
   const filtro = termo
     ? {
         $or: [
-          { legenda: { $regex: termo, $options: 'i' } },
-          { autorNome: { $regex: termo, $options: 'i' } },
+          { legenda: { $regex: termoRegex, $options: 'i' } },
+          { autorNome: { $regex: termoRegex, $options: 'i' } },
+          ...(postIdsPorComentario.length ? [{ _id: { $in: postIdsPorComentario } }] : []),
         ],
       }
     : {};
@@ -92,7 +127,7 @@ module.exports = async function handler(req, res) {
     .limit(50)
     .toArray();
 
-  const postIds = posts.map(post => post._id);
+  const postIds = posts.map((post) => post._id);
   const comentarios = postIds.length
     ? await db.collection('comments')
         .find({ postId: { $in: postIds } })
@@ -100,35 +135,16 @@ module.exports = async function handler(req, res) {
         .toArray()
     : [];
 
-  const comentariosFiltrados = termo
-    ? comentarios.filter(comentario => comentario.texto.toLowerCase().includes(termo.toLowerCase()))
-    : comentarios;
-
   const comentariosPorPost = new Map();
-  comentariosFiltrados.forEach(comentario => {
+  comentarios.forEach((comentario) => {
     const postId = comentario.postId.toString();
     const lista = comentariosPorPost.get(postId) || [];
-    lista.push({
-      id: comentario._id.toString(),
-      autorId: comentario.autorId.toString(),
-      autorNome: comentario.autorNome,
-      texto: comentario.texto,
-      criadoEm: comentario.criadoEm,
-    });
+    lista.push(normalizarComentario(comentario));
     comentariosPorPost.set(postId, lista);
   });
 
-  const termoLower = termo.toLowerCase();
   const postsComComentarios = posts
-    .filter(post => {
-      if (!termo) return true;
-      return (
-        (post.legenda || '').toLowerCase().includes(termoLower) ||
-        (post.autorNome || '').toLowerCase().includes(termoLower) ||
-        comentariosPorPost.has(post._id.toString())
-      );
-    })
-    .map(post => normalizarPost(post, comentariosPorPost));
+    .map((post) => normalizarPost(post, comentariosPorPost));
 
   return sucesso(res, { posts: postsComComentarios });
 };

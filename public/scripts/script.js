@@ -1,13 +1,51 @@
-﻿/**
+/**
  * public/scripts/script.js
- * * LÃ³gica de Interface e Regras de NegÃ³cio de Squads
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * Nota: Toda a lÃ³gica de sessÃ£o, cookies e gerenciamento dos modais de login e 
+ * * Lógica de Interface e Regras de Negócio de Squads
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Nota: Toda a lógica de sessão, cookies e gerenciamento dos modais de login e 
  * aceite de termos foi delegada para o 'public/auth.js' para evitar bugs de UI.
  */
 
+function abrirDocumentoLegal(url, titulo) {
+    const modal = document.getElementById('modalDocumentoLegal');
+    const iframe = document.getElementById('modalDocumentoLegalFrame');
+    const tituloEl = document.getElementById('modalDocumentoLegalTitulo');
+
+    if (!modal || !iframe) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
+    iframe.src = url;
+    iframe.title = titulo || 'Documento legal';
+    if (tituloEl) tituloEl.textContent = titulo || 'Documento legal';
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('legal-document-open');
+}
+
+function fecharModal(modalId) {
+    if (modalId === 'modalAceiteTermos') {
+        return;
+    }
+
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.classList.remove('open');
+
+    if (modalId === 'modalDocumentoLegal') {
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('legal-document-open');
+
+        const iframe = document.getElementById('modalDocumentoLegalFrame');
+        if (iframe) iframe.removeAttribute('src');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // â”€â”€ NAVEGAÃ‡ÃƒO ENTRE SQUADS (ABAS DO PAINEL) â”€â”€
+    // ── NAVEGAÇÃO ENTRE SQUADS (ABAS DO PAINEL) ──
     const buttons = document.querySelectorAll('.squad-btn');
     const views = document.querySelectorAll('.squad-view');
 
@@ -15,16 +53,16 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const squad = btn.dataset.squad;
             
-            // Remove estados ativos anteriores e ativa o botÃ£o clicado
+            // Remove estados ativos anteriores e ativa o botão clicado
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            // Esconde todas as visÃµes e ativa a correspondente ao squad
+            // Esconde todas as visões e ativa a correspondente ao squad
             views.forEach(view => view.classList.remove('active-view'));
             const targetView = document.getElementById(`${squad}-view`);
             if (targetView) targetView.classList.add('active-view');
             
-            // ForÃ§a o Leaflet a recalcular o tamanho correto do mapa se a aba de logÃ­stica for aberta
+            // Força o Leaflet a recalcular o tamanho correto do mapa se a aba de logística for aberta
             if (squad === 'logistica' && window.map) {
                 setTimeout(() => { 
                     window.map.invalidateSize(); 
@@ -33,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // â”€â”€ MAPEAMENTO E ABERTURA DE MODAIS OPERACIONAIS â”€â”€
+    // ── MAPEAMENTO E ABERTURA DE MODAIS OPERACIONAIS ──
     const configurarModalOperacional = (btnId, modalId) => {
         const btn = document.getElementById(btnId);
         const modal = document.getElementById(modalId);
@@ -42,36 +80,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Vincula os botÃµes da interface aos seus respectivos modais de simulaÃ§Ã£o
+    // Vincula os botões da interface aos seus respectivos modais de simulação
     configurarModalOperacional('btnSimularDesconto', 'modalDesconto');
     configurarModalOperacional('btnSimularParcelamento', 'modalParcelamento');
     configurarModalOperacional('btnGerarRecibo', 'modalReciboFatura');
     configurarModalOperacional('btnAnaliseABC', 'modalAnaliseABC');
 
-    // â”€â”€ FECHAMENTO SEGURO DE MODAIS â”€â”€
-    // Fecha os modais operacionais ao clicar na Ã¡rea escura de overlay
+    // ── FECHAMENTO SEGURO DE MODAIS ──
+    // Fecha os modais operacionais ao clicar na área escura de overlay
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
             if (e.target !== overlay) return;
             
-            // PROTEÃ‡ÃƒO CRÃTICA: Impede que cliques de fora fechem os modais de seguranÃ§a controlados por auth.js
+            // PROTEÇÃO CRÍTICA: Impede que cliques de fora fechem os modais de segurança controlados por auth.js
             if (overlay.id === 'modalAuth' || overlay.id === 'modalAceiteTermos') return;
             
             overlay.classList.remove('open');
         });
     });
 
-    // â”€â”€ INICIALIZAÃ‡ÃƒO DE GRÃFICOS E COMPONENTES VISUAIS â”€â”€
+    // ── INICIALIZAÇÃO DE GRÁFICOS E COMPONENTES VISUAIS ──
+    const modalDocumentoLegal = document.getElementById('modalDocumentoLegal');
+    if (modalDocumentoLegal) {
+        modalDocumentoLegal.addEventListener('click', (e) => {
+            if (e.target === modalDocumentoLegal) fecharModal('modalDocumentoLegal');
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fecharModal('modalDocumentoLegal');
+    });
+
     renderizarGraficosPainel();
     inicializarMapaLogistica();
+    inicializarRelatorioFinanceiro();
     inicializarComunidade();
 });
 
 /**
- * Renderiza e configura os grÃ¡ficos de anÃ¡lise de estoque e faturamento (Chart.js)
+ * Renderiza e configura os gráficos de análise de estoque e faturamento (Chart.js)
  */
 function renderizarGraficosPainel() {
-    // GrÃ¡fico 1: Curva ABC de Vendas/Faturamento
+    // Gráfico 1: Curva ABC de Vendas/Faturamento
     const ctxABC = document.getElementById('curvaABCChart');
     if (ctxABC && typeof Chart !== 'undefined') {
         new Chart(ctxABC, {
@@ -79,7 +129,7 @@ function renderizarGraficosPainel() {
             data: {
                 labels: ['Classe A (70%)', 'Classe B (20%)', 'Classe C (10%)'],
                 datasets: [{
-                    label: 'ParticipaÃ§Ã£o no Faturamento',
+                    label: 'Participação no Faturamento',
                     data: [70, 20, 10],
                     backgroundColor: ['#1a3c2c', '#ff9800', '#e0e0e0'],
                     borderRadius: 6
@@ -95,7 +145,7 @@ function renderizarGraficosPainel() {
         });
     }
 
-    // GrÃ¡fico 2: Curva ABC de Compras/Estoque
+    // Gráfico 2: Curva ABC de Compras/Estoque
     const ctxCompras = document.getElementById('curvaABCChartCompras');
     if (ctxCompras && typeof Chart !== 'undefined') {
         new Chart(ctxCompras, {
@@ -103,7 +153,7 @@ function renderizarGraficosPainel() {
             data: {
                 labels: ['Classe A (65%)', 'Classe B (25%)', 'Classe C (10%)'],
                 datasets: [{
-                    label: 'ParticipaÃ§Ã£o nas Compras',
+                    label: 'Participação nas Compras',
                     data: [65, 25, 10],
                     backgroundColor: ['#1a3c2c', '#ff9800', '#e0e0e0'],
                     borderRadius: 6
@@ -121,14 +171,14 @@ function renderizarGraficosPainel() {
 }
 
 /**
- * Inicializa a instÃ¢ncia do mapa do Leaflet focado nas simulaÃ§Ãµes de rota de entrega
+ * Inicializa a instância do mapa do Leaflet focado nas simulações de rota de entrega
  */
 function inicializarMapaLogistica() {
     const mapElement = document.getElementById('logistics-map');
     
-    // Certifica-se de que a div existe no HTML e a biblioteca Leaflet (L) estÃ¡ carregada via CDN
+    // Certifica-se de que a div existe no HTML e a biblioteca Leaflet (L) está carregada via CDN
     if (mapElement && typeof L !== 'undefined') {
-        // Centraliza o mapa por padrÃ£o (coordenadas demonstrativas)
+        // Centraliza o mapa por padrão (coordenadas demonstrativas)
         window.map = L.map('logistics-map').setView([-23.5505, -46.6333], 12);
         
         // Aplica o tema de mapa "CartoDB Positron" (visual limpo e profissional)
@@ -138,6 +188,232 @@ function inicializarMapaLogistica() {
             maxZoom: 20
         }).addTo(window.map);
     }
+}
+
+const transacoesFinanceiras = [
+    { data: '2026-06-26', descricao: 'Venda balcão - cimento CPII', tipo: 'receita', categoria: 'Vendas', usuario: 'Ana Souza', status: 'Pago', valor: 18450 },
+    { data: '2026-06-25', descricao: 'Compra fornecedor Votorantim', tipo: 'despesa', categoria: 'Fornecedores', usuario: 'Carlos Lima', status: 'Pago', valor: 9200 },
+    { data: '2026-06-24', descricao: 'Pedido WhatsApp - acabamento', tipo: 'receita', categoria: 'Vendas Online', usuario: 'Marina Alves', status: 'Pendente', valor: 6380 },
+    { data: '2026-06-22', descricao: 'Frete entregas zona norte', tipo: 'despesa', categoria: 'Logistica', usuario: 'Joao Pedro', status: 'Pago', valor: 1450 },
+    { data: '2026-06-20', descricao: 'Venda construtora - tijolos', tipo: 'receita', categoria: 'Atacado', usuario: 'Ana Souza', status: 'Pago', valor: 27400 },
+    { data: '2026-06-18', descricao: 'Manutencao empilhadeira', tipo: 'despesa', categoria: 'Operacional', usuario: 'Carlos Lima', status: 'Pendente', valor: 2100 },
+    { data: '2026-06-15', descricao: 'Venda pix - ferramentas', tipo: 'receita', categoria: 'Vendas', usuario: 'Marina Alves', status: 'Pago', valor: 8920 },
+    { data: '2026-06-12', descricao: 'Campanha redes sociais', tipo: 'despesa', categoria: 'Marketing', usuario: 'Bianca Rocha', status: 'Pago', valor: 980 },
+    { data: '2026-06-10', descricao: 'Recebimento boleto cliente A', tipo: 'receita', categoria: 'Recebiveis', usuario: 'Ana Souza', status: 'Pago', valor: 12300 },
+    { data: '2026-06-08', descricao: 'Compra ceramica e rejunte', tipo: 'despesa', categoria: 'Fornecedores', usuario: 'Carlos Lima', status: 'Cancelado', valor: 4300 },
+    { data: '2026-06-05', descricao: 'Venda cartão - hidraulica', tipo: 'receita', categoria: 'Vendas', usuario: 'Joao Pedro', status: 'Pago', valor: 5520 },
+    { data: '2026-05-29', descricao: 'Conta de energia loja', tipo: 'despesa', categoria: 'Operacional', usuario: 'Bianca Rocha', status: 'Pago', valor: 1780 },
+    { data: '2026-05-24', descricao: 'Venda corporativa - pintura', tipo: 'receita', categoria: 'Atacado', usuario: 'Marina Alves', status: 'Pendente', valor: 15840 },
+    { data: '2026-05-18', descricao: 'Comissao equipe vendas', tipo: 'despesa', categoria: 'Pessoal', usuario: 'Ana Souza', status: 'Pago', valor: 3600 },
+    { data: '2026-05-10', descricao: 'Venda ecommerce - iluminacao', tipo: 'receita', categoria: 'Vendas Online', usuario: 'Joao Pedro', status: 'Pago', valor: 7320 },
+    { data: '2026-04-28', descricao: 'Aluguel do galpao', tipo: 'despesa', categoria: 'Operacional', usuario: 'Bianca Rocha', status: 'Pago', valor: 5200 },
+];
+
+const estadoRelatorioFinanceiro = {
+    sortKey: 'data',
+    sortDirection: 'desc',
+    charts: {},
+};
+
+function moedaFinanceira(valor) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    }).format(valor);
+}
+
+function dataFinanceira(valor) {
+    return new Date(`${valor}T00:00:00`).toLocaleDateString('pt-BR');
+}
+
+function preencherSelectFinanceiro(id, valores, labelTodos) {
+    const select = document.getElementById(id);
+    if (!select) return;
+    select.innerHTML = `<option value="todos">${labelTodos}</option>` +
+        valores.map(valor => `<option value="${valor}">${valor}</option>`).join('');
+}
+
+function configurarOpcoesFinanceiras() {
+    preencherSelectFinanceiro('finUsuario', [...new Set(transacoesFinanceiras.map(item => item.usuario))].sort(), 'Todos');
+    preencherSelectFinanceiro('finStatus', [...new Set(transacoesFinanceiras.map(item => item.status))].sort(), 'Todos');
+    preencherSelectFinanceiro('finCategoria', [...new Set(transacoesFinanceiras.map(item => item.categoria))].sort(), 'Todas');
+}
+
+function obterFiltrosFinanceiros() {
+    return {
+        busca: document.getElementById('finBusca')?.value.trim().toLowerCase() || '',
+        inicio: document.getElementById('finDataInicio')?.value || '',
+        fim: document.getElementById('finDataFim')?.value || '',
+        periodo: document.getElementById('finPeriodo')?.value || 'todos',
+        tipo: document.getElementById('finTipo')?.value || 'todos',
+        usuario: document.getElementById('finUsuario')?.value || 'todos',
+        status: document.getElementById('finStatus')?.value || 'todos',
+        categoria: document.getElementById('finCategoria')?.value || 'todos',
+        agrupar: document.getElementById('finAgrupar')?.value || 'categoria',
+    };
+}
+
+function filtrarTransacoesFinanceiras() {
+    const filtros = obterFiltrosFinanceiros();
+    const hoje = new Date('2026-06-26T00:00:00');
+    const inicioPeriodo = filtros.periodo === 'todos'
+        ? null
+        : new Date(hoje.getTime() - (Number(filtros.periodo === 'hoje' ? 0 : filtros.periodo) * 24 * 60 * 60 * 1000));
+
+    return transacoesFinanceiras.filter(item => {
+        const data = new Date(`${item.data}T00:00:00`);
+        const textoBusca = `${item.descricao} ${item.tipo} ${item.categoria} ${item.usuario} ${item.status}`.toLowerCase();
+        if (filtros.busca && !textoBusca.includes(filtros.busca)) return false;
+        if (filtros.inicio && item.data < filtros.inicio) return false;
+        if (filtros.fim && item.data > filtros.fim) return false;
+        if (inicioPeriodo && data < inicioPeriodo) return false;
+        if (filtros.tipo !== 'todos' && item.tipo !== filtros.tipo) return false;
+        if (filtros.usuario !== 'todos' && item.usuario !== filtros.usuario) return false;
+        if (filtros.status !== 'todos' && item.status !== filtros.status) return false;
+        if (filtros.categoria !== 'todos' && item.categoria !== filtros.categoria) return false;
+        return true;
+    }).sort((a, b) => {
+        const chave = estadoRelatorioFinanceiro.sortKey;
+        const dir = estadoRelatorioFinanceiro.sortDirection === 'asc' ? 1 : -1;
+        if (chave === 'valor') return (a.valor - b.valor) * dir;
+        return String(a[chave]).localeCompare(String(b[chave])) * dir;
+    });
+}
+
+function resumoFinanceiro(dados) {
+    const receitas = dados.filter(item => item.tipo === 'receita').reduce((soma, item) => soma + item.valor, 0);
+    const despesas = dados.filter(item => item.tipo === 'despesa').reduce((soma, item) => soma + item.valor, 0);
+    const saldo = receitas - despesas;
+    const media = dados.length ? dados.reduce((soma, item) => soma + item.valor, 0) / dados.length : 0;
+    return { receitas, despesas, saldo, media };
+}
+
+function agruparFinanceiro(dados, chave) {
+    return dados.reduce((mapa, item) => {
+        const nome = item[chave];
+        const atual = mapa.get(nome) || { nome, quantidade: 0, receitas: 0, despesas: 0, total: 0 };
+        atual.quantidade += 1;
+        atual[item.tipo === 'receita' ? 'receitas' : 'despesas'] += item.valor;
+        atual.total += item.tipo === 'receita' ? item.valor : -item.valor;
+        mapa.set(nome, atual);
+        return mapa;
+    }, new Map());
+}
+
+function atualizarTabelaFinanceira(dados) {
+    const corpo = document.getElementById('finTabelaCorpo');
+    if (!corpo) return;
+    corpo.innerHTML = dados.map(item => {
+        const sinal = item.tipo === 'receita' ? 1 : -1;
+        const classe = sinal > 0 ? 'financial-value-positive' : 'financial-value-negative';
+        return `
+            <tr>
+                <td>${dataFinanceira(item.data)}</td>
+                <td>${item.descricao}</td>
+                <td>${item.tipo}</td>
+                <td>${item.categoria}</td>
+                <td>${item.usuario}</td>
+                <td>${item.status}</td>
+                <td class="${classe}">${moedaFinanceira(item.valor * sinal)}</td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="7">Nenhuma transacao encontrada.</td></tr>';
+}
+
+function atualizarResumoFinanceiro(dados) {
+    const resumo = resumoFinanceiro(dados);
+    document.getElementById('financeiroQtdRegistros').textContent = `${dados.length} registros`;
+    document.getElementById('finTotalReceitas').textContent = moedaFinanceira(resumo.receitas);
+    document.getElementById('finTotalDespesas').textContent = moedaFinanceira(resumo.despesas);
+    document.getElementById('finSaldo').textContent = moedaFinanceira(resumo.saldo);
+    document.getElementById('finMedia').textContent = moedaFinanceira(resumo.media);
+    document.getElementById('finRodapeTotal').textContent = moedaFinanceira(resumo.saldo);
+}
+
+function atualizarAgrupamentosFinanceiros(dados) {
+    const lista = document.getElementById('finAgrupamentos');
+    if (!lista) return;
+    const chave = obterFiltrosFinanceiros().agrupar;
+    const grupos = [...agruparFinanceiro(dados, chave).values()]
+        .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+    lista.innerHTML = grupos.map(grupo => `
+        <div class="financial-group-item">
+            <span><strong>${grupo.nome}</strong><br>${grupo.quantidade} transacao(es)</span>
+            <span>${moedaFinanceira(grupo.total)}</span>
+        </div>
+    `).join('') || '<div class="empty-state">Nenhum agrupamento disponivel.</div>';
+}
+
+function criarOuAtualizarGraficoFinanceiro(id, tipo, config) {
+    const canvas = document.getElementById(id);
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (estadoRelatorioFinanceiro.charts[id]) {
+        estadoRelatorioFinanceiro.charts[id].destroy();
+    }
+    estadoRelatorioFinanceiro.charts[id] = new Chart(canvas, { type: tipo, ...config });
+}
+
+function atualizarGraficosFinanceiros(dados) {
+    const porCategoria = [...agruparFinanceiro(dados, 'categoria').values()];
+    const porStatus = [...agruparFinanceiro(dados, 'status').values()];
+    const porData = [...agruparFinanceiro(dados, 'data').values()].sort((a, b) => a.nome.localeCompare(b.nome));
+
+    criarOuAtualizarGraficoFinanceiro('finPieChart', 'pie', {
+        data: {
+            labels: porCategoria.map(item => item.nome),
+            datasets: [{ data: porCategoria.map(item => Math.abs(item.total)), backgroundColor: ['#1a3c2c', '#ff9800', '#1565c0', '#6a1b9a', '#b71c1c', '#607d8b'] }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Distribuicao por categoria' } } },
+    });
+
+    criarOuAtualizarGraficoFinanceiro('finBarChart', 'bar', {
+        data: {
+            labels: porStatus.map(item => item.nome),
+            datasets: [
+                { label: 'Receitas', data: porStatus.map(item => item.receitas), backgroundColor: '#1a3c2c' },
+                { label: 'Despesas', data: porStatus.map(item => item.despesas), backgroundColor: '#b71c1c' },
+            ],
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Receitas x despesas por status' } } },
+    });
+
+    criarOuAtualizarGraficoFinanceiro('finLineChart', 'line', {
+        data: {
+            labels: porData.map(item => dataFinanceira(item.nome)),
+            datasets: [{ label: 'Saldo diario', data: porData.map(item => item.total), borderColor: '#1565c0', backgroundColor: 'rgba(21,101,192,0.12)', tension: 0.35, fill: true }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Evolucao do saldo' } } },
+    });
+}
+
+function atualizarRelatorioFinanceiro() {
+    const dados = filtrarTransacoesFinanceiras();
+    atualizarTabelaFinanceira(dados);
+    atualizarResumoFinanceiro(dados);
+    atualizarAgrupamentosFinanceiros(dados);
+    atualizarGraficosFinanceiros(dados);
+}
+
+function inicializarRelatorioFinanceiro() {
+    if (!document.getElementById('finTabelaCorpo')) return;
+    configurarOpcoesFinanceiras();
+    document.querySelectorAll('#financeiro-view input, #financeiro-view select').forEach(campo => {
+        campo.addEventListener('input', atualizarRelatorioFinanceiro);
+        campo.addEventListener('change', atualizarRelatorioFinanceiro);
+    });
+    document.querySelectorAll('[data-fin-sort]').forEach(botao => {
+        botao.addEventListener('click', () => {
+            const chave = botao.dataset.finSort;
+            if (estadoRelatorioFinanceiro.sortKey === chave) {
+                estadoRelatorioFinanceiro.sortDirection = estadoRelatorioFinanceiro.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                estadoRelatorioFinanceiro.sortKey = chave;
+                estadoRelatorioFinanceiro.sortDirection = 'asc';
+            }
+            atualizarRelatorioFinanceiro();
+        });
+    });
+    atualizarRelatorioFinanceiro();
 }
 
 function mostrarMensagemComunidade(id, tipo, texto) {
@@ -154,10 +430,32 @@ async function apiComunidade(url, metodo = 'GET', body = null) {
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
     };
+
     if (body) opcoes.body = JSON.stringify(body);
+
     const resposta = await fetch(url, opcoes);
-    const json = await resposta.json();
+    const json = await resposta.json().catch(() => ({
+        ok: false,
+        erro: 'Resposta invalida do servidor.',
+    }));
+
     return { httpStatus: resposta.status, ...json };
+}
+
+function escaparHtml(valor) {
+    return String(valor ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function imagemSegura(valor) {
+    const url = String(valor || '').trim();
+    if (/^https?:\/\//i.test(url)) return url;
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(url)) return url;
+    return '';
 }
 
 function formatarDataComunidade(valor) {
@@ -182,29 +480,37 @@ function iniciais(nome) {
 }
 
 function avatarHtml(nome, avatar, classe = 'feed-avatar') {
-    const conteudo = avatar
-        ? `<img src="${avatar}" alt="Avatar de ${nome}">`
-        : iniciais(nome);
+    const nomeSeguro = escaparHtml(nome || 'Usuario');
+    const avatarSeguro = imagemSegura(avatar);
+    const conteudo = avatarSeguro
+        ? `<img src="${escaparHtml(avatarSeguro)}" alt="Avatar de ${nomeSeguro}">`
+        : escaparHtml(iniciais(nome));
+
     return `<div class="${classe}">${conteudo}</div>`;
 }
 
 function atualizarPreviewAvatar(url) {
     const preview = document.getElementById('perfilAvatarPreview');
     if (!preview) return;
-    preview.innerHTML = url
-        ? `<img src="${url}" alt="Avatar do perfil">`
+
+    const avatarSeguro = imagemSegura(url);
+    preview.innerHTML = avatarSeguro
+        ? `<img src="${escaparHtml(avatarSeguro)}" alt="Avatar do perfil">`
         : '<i class="fas fa-user"></i>';
 }
 
 async function arquivoParaBase64(input) {
     const arquivo = input?.files?.[0];
     if (!arquivo) return null;
+
     if (!arquivo.type.startsWith('image/')) {
         throw new Error('Selecione um arquivo de imagem.');
     }
+
     if (arquivo.size > 700 * 1024) {
         throw new Error('Use uma imagem menor que 700 KB para este prototipo.');
     }
+
     return new Promise((resolve, reject) => {
         const leitor = new FileReader();
         leitor.onload = () => resolve(leitor.result);
@@ -216,13 +522,16 @@ async function arquivoParaBase64(input) {
 async function carregarPerfilComunidade() {
     const resultado = await apiComunidade('/api/usuarios/perfil');
     if (!resultado.ok) return;
+
     const usuario = resultado.dados.usuario;
     const nome = document.getElementById('perfilNome');
     const email = document.getElementById('perfilEmail');
     const avatar = document.getElementById('perfilAvatar');
+
     if (nome) nome.value = usuario.nome || '';
     if (email) email.value = usuario.email || '';
     if (avatar) avatar.value = usuario.avatar || '';
+
     atualizarPreviewAvatar(usuario.avatar);
 }
 
@@ -230,53 +539,331 @@ function renderizarPosts(posts) {
     const lista = document.getElementById('listaPosts');
     const contador = document.getElementById('contadorPosts');
     if (!lista) return;
+
     if (contador) contador.textContent = `${posts.length} itens`;
+
     if (!posts.length) {
         lista.innerHTML = '<div class="empty-state">Nenhum conteudo encontrado.</div>';
         return;
     }
-    lista.innerHTML = posts.map(post => `
-        <article class="feed-post">
-            <div class="feed-post-header">
-                ${avatarHtml(post.autorNome, post.autorAvatar)}
-                <div>
-                    <div class="feed-author">${post.autorNome}</div>
-                    <div class="feed-date">${formatarDataComunidade(post.criadoEm)}</div>
-                </div>
-            </div>
-            ${post.imagemUrl ? `<img class="feed-image" src="${post.imagemUrl}" alt="Imagem da publicacao">` : ''}
-            <p class="feed-caption">${post.legenda || ''}</p>
-            <div class="comments-list">
-                ${(post.comentarios || []).map(comentario => `
-                    <div class="comment-item">
-                        <strong>${comentario.autorNome}:</strong> ${comentario.texto}
+
+    lista.innerHTML = posts.map((post) => {
+        const imagem = imagemSegura(post.imagemUrl);
+        const comentarios = post.comentarios || [];
+
+        return `
+            <article class="feed-post">
+                <div class="feed-post-header">
+                    ${avatarHtml(post.autorNome, post.autorAvatar)}
+                    <div>
+                        <div class="feed-author">${escaparHtml(post.autorNome)}</div>
+                        <div class="feed-date">${escaparHtml(formatarDataComunidade(post.criadoEm))}</div>
                     </div>
-                `).join('') || '<div class="empty-state">Sem comentarios ainda.</div>'}
-            </div>
-            <form class="comment-form" data-post-id="${post.id}">
-                <input type="text" name="comentario" maxlength="240" placeholder="Escrever depoimento ou comentario">
-                <button class="btn btn-secondary" type="submit"><i class="fas fa-comment"></i></button>
-            </form>
-        </article>
-    `).join('');
+                </div>
+                ${imagem ? `<img class="feed-image" src="${escaparHtml(imagem)}" alt="Imagem da publicacao">` : ''}
+                <p class="feed-caption">${escaparHtml(post.legenda || '')}</p>
+                <div class="feed-actions">
+                    <button class="btn btn-secondary btn-share-post" type="button" data-share-toggle>
+                        <i class="fas fa-share-nodes"></i> Compartilhar
+                    </button>
+                </div>
+                <form class="share-form" data-post-id="${escaparHtml(post.id)}" hidden>
+                    <input type="email" name="destinatarioEmail" maxlength="254" placeholder="E-mail do destinatario" required>
+                    <input type="text" name="mensagem" maxlength="180" placeholder="Mensagem opcional">
+                    <button class="btn btn-secondary" type="submit">
+                        <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                    <div class="community-message share-message" hidden></div>
+                </form>
+                <div class="comments-list">
+                    ${comentarios.length
+                        ? comentarios.map((comentario) => `
+                            <div class="comment-item">
+                                <strong>${escaparHtml(comentario.autorNome)}:</strong>
+                                ${escaparHtml(comentario.texto)}
+                            </div>
+                        `).join('')
+                        : '<div class="empty-state">Sem comentarios ainda.</div>'}
+                </div>
+                <form class="comment-form" data-post-id="${escaparHtml(post.id)}">
+                    <input type="text" name="comentario" maxlength="240" placeholder="Escrever depoimento ou comentario">
+                    <button class="btn btn-secondary" type="submit" aria-label="Enviar comentario">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                </form>
+            </article>
+        `;
+    }).join('');
+}
+
+function mostrarMensagemCompartilhamento(form, tipo, texto) {
+    const mensagem = form.querySelector('.share-message');
+    if (!mensagem) return;
+
+    mensagem.textContent = texto;
+    mensagem.className = `community-message share-message ${tipo}`;
+    mensagem.hidden = false;
+}
+
+function alternarFormularioCompartilhamento(botao) {
+    const post = botao.closest('.feed-post');
+    const form = post?.querySelector('.share-form');
+    if (!form) return;
+
+    form.hidden = !form.hidden;
+    if (!form.hidden) {
+        form.querySelector('input[name="destinatarioEmail"]')?.focus();
+    }
+}
+
+async function compartilharPost(form) {
+    const postId = form.dataset.postId;
+    const destinatarioEmail = form.elements.destinatarioEmail?.value.trim().toLowerCase() || '';
+    const mensagem = form.elements.mensagem?.value.trim() || '';
+
+    if (!destinatarioEmail) {
+        mostrarMensagemCompartilhamento(form, 'error', 'Informe o e-mail do destinatario.');
+        return;
+    }
+
+    try {
+        mostrarMensagemCompartilhamento(form, 'success', 'Enviando compartilhamento...');
+
+        const resultado = await apiComunidade('/api/compartilhamentos', 'POST', {
+            postId,
+            destinatarioEmail,
+            mensagem,
+        });
+
+        if (!resultado.ok) {
+            mostrarMensagemCompartilhamento(form, 'error', resultado.erro || 'Nao foi possivel compartilhar.');
+            return;
+        }
+
+        form.reset();
+        mostrarMensagemCompartilhamento(form, 'success', 'Publicacao compartilhada com sucesso.');
+    } catch (error) {
+        mostrarMensagemCompartilhamento(form, 'error', error.message || 'Erro ao compartilhar publicacao.');
+    }
 }
 
 function renderizarNotificacoes(notificacoes, naoLidas) {
     const lista = document.getElementById('listaNotificacoes');
     const contador = document.getElementById('contadorNotificacoes');
+
     if (contador) contador.textContent = `${naoLidas} novas`;
     if (!lista) return;
+
     if (!notificacoes.length) {
         lista.innerHTML = '<div class="empty-state">Nenhuma notificacao por enquanto.</div>';
         return;
     }
-    lista.innerHTML = notificacoes.map(item => `
+
+    lista.innerHTML = notificacoes.map((item) => `
         <div class="notification-item ${item.lida ? '' : 'unread'}">
-            <strong>${item.tipo}</strong><br>
-            ${item.mensagem}
-            <div class="feed-date">${formatarDataComunidade(item.criadoEm)}</div>
+            <strong>${escaparHtml(item.tipo)}</strong><br>
+            ${escaparHtml(item.mensagem)}
+            <div class="feed-date">${escaparHtml(formatarDataComunidade(item.criadoEm))}</div>
         </div>
     `).join('');
+}
+
+function nomeArquivoExportacao(resposta, formato) {
+    const disposition = resposta.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    if (match?.[1]) return match[1];
+
+    const data = new Date().toISOString().slice(0, 10);
+    return `comunidade-export-${data}.${formato}`;
+}
+
+async function baixarExportacaoComunidade(formato) {
+    try {
+        mostrarMensagemComunidade('exportMensagem', 'success', `Preparando exportacao ${formato.toUpperCase()}...`);
+
+        const resposta = await fetch(`/api/export/comunidade?formato=${encodeURIComponent(formato)}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+
+        if (!resposta.ok) {
+            const json = await resposta.json().catch(() => null);
+            throw new Error(json?.erro || 'Nao foi possivel gerar o arquivo de exportacao.');
+        }
+
+        const blob = await resposta.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivoExportacao(resposta, formato);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        mostrarMensagemComunidade('exportMensagem', 'success', `Exportacao ${formato.toUpperCase()} gerada com sucesso.`);
+    } catch (error) {
+        mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao exportar dados.');
+    }
+}
+
+function textoImagemRelatorio(imagemUrl) {
+    const valor = String(imagemUrl || '').trim();
+    if (!valor) return '';
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(valor)) {
+        return `Imagem enviada por upload/base64 (${valor.length} caracteres)`;
+    }
+    return valor;
+}
+
+function comentariosRelatorioHtml(comentarios) {
+    if (!comentarios?.length) {
+        return '<p class="empty">Sem comentarios.</p>';
+    }
+
+    return `
+        <ul>
+            ${comentarios.map((comentario) => `
+                <li>
+                    <strong>${escaparHtml(comentario.autor || comentario.autorNome || 'Usuario')}:</strong>
+                    ${escaparHtml(comentario.texto || '')}
+                    <span>${escaparHtml(formatarDataComunidade(comentario.criadoEm))}</span>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+}
+
+function montarRelatorioComunidadeHtml(dados) {
+    const posts = dados.posts || [];
+    const geradoEm = formatarDataComunidade(dados.geradoEm || new Date());
+
+    return `<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Relatorio da Comunidade</title>
+    <style>
+        body {
+            color: #1f2933;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 32px;
+        }
+        h1 {
+            color: #1a3c2c;
+            margin-bottom: 4px;
+        }
+        .meta {
+            color: #5f6f7a;
+            margin-bottom: 24px;
+        }
+        article {
+            border-top: 1px solid #d8dee4;
+            break-inside: avoid;
+            padding: 18px 0;
+        }
+        h2 {
+            font-size: 18px;
+            margin: 0 0 8px;
+        }
+        p {
+            margin: 6px 0;
+        }
+        .label {
+            color: #52616b;
+            font-weight: 700;
+        }
+        .image-url {
+            overflow-wrap: anywhere;
+        }
+        ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        li span {
+            color: #6b7780;
+            display: block;
+            font-size: 12px;
+        }
+        .empty {
+            color: #6b7780;
+            font-style: italic;
+        }
+        @media print {
+            body {
+                margin: 18mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatorio da Comunidade</h1>
+    <div class="meta">
+        Gerado em ${escaparHtml(geradoEm)}<br>
+        Total de posts: ${escaparHtml(posts.length)}
+    </div>
+    ${posts.length ? posts.map((post) => {
+        const imagem = textoImagemRelatorio(post.imagemUrl);
+
+        return `
+            <article>
+                <h2>${escaparHtml(post.autor || 'Usuario')}</h2>
+                <p><span class="label">Data:</span> ${escaparHtml(formatarDataComunidade(post.criadoEm))}</p>
+                <p><span class="label">Legenda:</span> ${escaparHtml(post.legenda || '')}</p>
+                ${imagem ? `<p class="image-url"><span class="label">Imagem:</span> ${escaparHtml(imagem)}</p>` : ''}
+                <p><span class="label">Comentarios:</span> ${escaparHtml(post.quantidadeComentarios || 0)}</p>
+                ${comentariosRelatorioHtml(post.comentarios || [])}
+            </article>
+        `;
+    }).join('') : '<p class="empty">Nenhum post encontrado para exportacao.</p>'}
+</body>
+</html>`;
+}
+
+async function imprimirExportacaoComunidadePdf() {
+    let janela = null;
+
+    try {
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Preparando relatorio imprimivel...');
+
+        janela = window.open('', '_blank');
+        if (!janela) {
+            throw new Error('Permita pop-ups para abrir o relatorio imprimivel.');
+        }
+
+        janela.document.open();
+        janela.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatorio da Comunidade</title></head><body><p>Preparando relatorio...</p></body></html>');
+        janela.document.close();
+
+        const resposta = await fetch('/api/export/comunidade?formato=json', {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+        const resultado = await resposta.json().catch(() => null);
+
+        if (!resposta.ok || !resultado?.ok) {
+            throw new Error(resultado?.erro || 'Nao foi possivel gerar o relatorio.');
+        }
+
+        janela.document.open();
+        janela.document.write(montarRelatorioComunidadeHtml(resultado.dados || {}));
+        janela.document.close();
+        janela.focus();
+        setTimeout(() => janela.print(), 300);
+
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Relatorio aberto. Use a impressao do navegador para salvar em PDF.');
+    } catch (error) {
+        if (janela && !janela.closed) {
+            janela.document.open();
+            janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Erro na exportacao</title></head><body><p>${escaparHtml(error.message || 'Erro ao gerar PDF.')}</p></body></html>`);
+            janela.document.close();
+        }
+        mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao gerar PDF.');
+    }
 }
 
 async function carregarConteudoComunidade() {
@@ -285,6 +872,7 @@ async function carregarConteudoComunidade() {
         apiComunidade(`/api/posts${termo ? `?q=${encodeURIComponent(termo)}` : ''}`),
         apiComunidade('/api/notificacoes'),
     ]);
+
     if (posts.ok) renderizarPosts(posts.dados.posts || []);
     if (notificacoes.ok) {
         renderizarNotificacoes(
@@ -298,23 +886,40 @@ function inicializarComunidade() {
     if (!document.getElementById('comunidade-view')) return;
 
     document.getElementById('btnAtualizarComunidade')?.addEventListener('click', carregarConteudoComunidade);
+    document.getElementById('btnExportarComunidadeCsv')?.addEventListener('click', () => baixarExportacaoComunidade('csv'));
+    document.getElementById('btnExportarComunidadeJson')?.addEventListener('click', () => baixarExportacaoComunidade('json'));
+    document.getElementById('btnExportarComunidadePdf')?.addEventListener('click', imprimirExportacaoComunidadePdf);
     document.getElementById('buscaConteudo')?.addEventListener('input', () => {
         clearTimeout(window._communitySearchTimer);
         window._communitySearchTimer = setTimeout(carregarConteudoComunidade, 350);
+    });
+    document.getElementById('listaPosts')?.addEventListener('click', (e) => {
+        const botao = e.target.closest('[data-share-toggle]');
+        if (botao) alternarFormularioCompartilhamento(botao);
+    });
+    document.getElementById('listaPosts')?.addEventListener('submit', (e) => {
+        const form = e.target.closest('.share-form');
+        if (!form) return;
+
+        e.preventDefault();
+        compartilharPost(form);
     });
     document.getElementById('perfilAvatar')?.addEventListener('input', (e) => atualizarPreviewAvatar(e.target.value));
 
     document.getElementById('formPerfil')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         const body = {
             nome: document.getElementById('perfilNome')?.value.trim(),
             email: document.getElementById('perfilEmail')?.value.trim().toLowerCase(),
             avatar: document.getElementById('perfilAvatar')?.value.trim() || null,
         };
         const resultado = await apiComunidade('/api/usuarios/perfil', 'PUT', body);
+
         if (resultado.ok) {
             mostrarMensagemComunidade('perfilMensagem', 'success', 'Perfil atualizado com sucesso.');
-            document.getElementById('nomeUsuarioLogado').textContent = resultado.dados.usuario.nome;
+            const nomeUsuarioLogado = document.getElementById('nomeUsuarioLogado');
+            if (nomeUsuarioLogado) nomeUsuarioLogado.textContent = resultado.dados.usuario.nome;
             atualizarPreviewAvatar(resultado.dados.usuario.avatar);
             carregarConteudoComunidade();
         } else {
@@ -324,6 +929,7 @@ function inicializarComunidade() {
 
     document.getElementById('formPublicacao')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         try {
             const imagemArquivo = await arquivoParaBase64(document.getElementById('postImagemArquivo'));
             const body = {
@@ -331,6 +937,7 @@ function inicializarComunidade() {
                 legenda: document.getElementById('postLegenda')?.value.trim(),
             };
             const resultado = await apiComunidade('/api/posts', 'POST', body);
+
             if (resultado.ok) {
                 e.target.reset();
                 mostrarMensagemComunidade('postMensagem', 'success', 'Publicacao criada.');
@@ -346,9 +953,12 @@ function inicializarComunidade() {
     document.getElementById('listaPosts')?.addEventListener('submit', async (e) => {
         const form = e.target.closest('.comment-form');
         if (!form) return;
+
         e.preventDefault();
+
         const texto = form.comentario.value.trim();
         if (!texto) return;
+
         const resultado = await apiComunidade(`/api/posts/${form.dataset.postId}/comentarios`, 'POST', { texto });
         if (resultado.ok) {
             form.reset();

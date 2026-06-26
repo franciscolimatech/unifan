@@ -341,6 +341,53 @@
                         Detalhada</button>
                 </div>
 
+                <div class="card card-financeiro financial-report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-filter"></i> Relatorio Financeiro Inteligente</h3>
+                        <span class="badge" id="financeiroQtdRegistros">0 registros</span>
+                    </div>
+                    <div class="financial-filter-grid">
+                        <div class="form-group"><label for="finBusca">Buscar no relatorio</label><input type="search" id="finBusca" placeholder="Cliente, usuario, categoria ou descricao"></div>
+                        <div class="form-group"><label for="finDataInicio">Data inicial</label><input type="date" id="finDataInicio"></div>
+                        <div class="form-group"><label for="finDataFim">Data final</label><input type="date" id="finDataFim"></div>
+                        <div class="form-group"><label for="finPeriodo">Periodo</label><select id="finPeriodo"><option value="todos">Todos</option><option value="hoje">Hoje</option><option value="7">Ultimos 7 dias</option><option value="30">Ultimos 30 dias</option><option value="90">Ultimos 90 dias</option></select></div>
+                        <div class="form-group"><label for="finTipo">Tipo</label><select id="finTipo"><option value="todos">Todos</option><option value="receita">Receitas</option><option value="despesa">Despesas</option></select></div>
+                        <div class="form-group"><label for="finUsuario">Usuario</label><select id="finUsuario"><option value="todos">Todos</option></select></div>
+                        <div class="form-group"><label for="finStatus">Status</label><select id="finStatus"><option value="todos">Todos</option></select></div>
+                        <div class="form-group"><label for="finCategoria">Categoria</label><select id="finCategoria"><option value="todos">Todas</option></select></div>
+                        <div class="form-group"><label for="finAgrupar">Agrupar por</label><select id="finAgrupar"><option value="categoria">Categoria</option><option value="tipo">Tipo</option><option value="status">Status</option><option value="usuario">Usuario</option></select></div>
+                    </div>
+                    <div class="financial-summary-row">
+                        <div class="financial-summary-card"><span>Total de receitas</span><strong id="finTotalReceitas">R$ 0,00</strong></div>
+                        <div class="financial-summary-card"><span>Total de despesas</span><strong id="finTotalDespesas">R$ 0,00</strong></div>
+                        <div class="financial-summary-card"><span>Saldo</span><strong id="finSaldo">R$ 0,00</strong></div>
+                        <div class="financial-summary-card"><span>Media por transacao</span><strong id="finMedia">R$ 0,00</strong></div>
+                    </div>
+                    <div class="financial-charts-grid">
+                        <div class="financial-chart-box"><canvas id="finPieChart"></canvas></div>
+                        <div class="financial-chart-box"><canvas id="finBarChart"></canvas></div>
+                        <div class="financial-chart-box"><canvas id="finLineChart"></canvas></div>
+                    </div>
+                    <div class="financial-table-wrap">
+                        <table class="financial-table">
+                            <thead>
+                                <tr>
+                                    <th><button type="button" data-fin-sort="data">Data <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="descricao">Descricao <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="tipo">Tipo <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="categoria">Categoria <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="usuario">Usuario <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="status">Status <i class="fas fa-sort"></i></button></th>
+                                    <th><button type="button" data-fin-sort="valor">Valor <i class="fas fa-sort"></i></button></th>
+                                </tr>
+                            </thead>
+                            <tbody id="finTabelaCorpo"></tbody>
+                            <tfoot><tr><td colspan="6">Totais filtrados</td><td id="finRodapeTotal">R$ 0,00</td></tr></tfoot>
+                        </table>
+                    </div>
+                    <div class="financial-group-list" id="finAgrupamentos"></div>
+                </div>
+
             </div>
         </div>
 
@@ -511,7 +558,17 @@
                 <button class="btn btn-secondary" id="btnAtualizarComunidade" type="button">
                     <i class="fas fa-rotate"></i> Atualizar
                 </button>
+                <button class="btn btn-secondary" id="btnExportarComunidadeCsv" type="button">
+                    <i class="fas fa-file-csv"></i> Exportar CSV
+                </button>
+                <button class="btn btn-secondary" id="btnExportarComunidadeJson" type="button">
+                    <i class="fas fa-file-code"></i> Exportar JSON
+                </button>
+                <button class="btn btn-secondary" id="btnExportarComunidadePdf" type="button">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
             </div>
+            <div class="community-message" id="exportMensagem" hidden></div>
 
             <div class="grid community-grid">
                 <div class="card">
@@ -544,7 +601,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-image"></i> Nova Publicacao</h3>
+                        <h3><i class="fas fa-image"></i> Nova publicacao</h3>
                         <span class="badge">Feed</span>
                     </div>
                     <form id="formPublicacao" class="community-form">
@@ -810,7 +867,12 @@
                         style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; color: #1a2a3a;">
                         <input type="checkbox" id="authTermsAceiteCheck" class="auth-terms-input"
                             style="width: 18px; height: 18px; accent-color: #1a3c2c;">
-                        <span>Li e aceito os novos <a href="#" onclick="abrirModalLegal('termos');return false;">Termos de Uso</a> e a <a href="#" onclick="abrirModalLegal('politica');return false;">Política de Privacidade</a>.</span>
+                        <span>Li e aceito os novos <a href="pages/termos-de-uso.html"
+                                onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                                target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a <a
+                                href="pages/politica-de-privacidade.html"
+                                onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
+                                target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.</span>
                     </label>
                 </div>
 
@@ -872,9 +934,14 @@
                         aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
                     <span class="auth-terms-text">
                         Li e aceito os
-                        <a href="#" onclick="abrirModalLegal('termos');return false;">Termos de Uso</a>
+                        <a href="pages/termos-de-uso.html"
+                            onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                            target="_blank" rel="noopener noreferrer">Termos de Uso</a>
                         e a
-                        <a href="#" onclick="abrirModalLegal('politica');return false;">Política de Privacidade</a>.
+                        <a href="pages/politica-de-privacidade.html" target="_blank"
+                            onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
+                            rel="noopener noreferrer">Política de
+                            Privacidade</a>.
                     </span>
                 </div>
                 <button class="btn" id="btnAuthLogin" type="button" onclick="loginUsuario()" disabled>
@@ -946,9 +1013,14 @@
                         aria-label="Aceitar Termos de Uso e Política de Privacidade"></label>
                     <span class="auth-terms-text">
                         Li e aceito os
-                        <a href="#" onclick="abrirModalLegal('termos');return false;">Termos de Uso</a>
+                        <a href="pages/termos-de-uso.html"
+                            onclick="abrirDocumentoLegal('pages/termos-de-uso.html', 'Termos de Uso'); return false;"
+                            target="_blank" rel="noopener noreferrer">Termos de Uso</a>
                         e a
-                        <a href="#" onclick="abrirModalLegal('politica');return false;">Política de Privacidade</a>.
+                        <a href="pages/politica-de-privacidade.html" target="_blank"
+                            onclick="abrirDocumentoLegal('pages/politica-de-privacidade.html', 'Política de Privacidade'); return false;"
+                            rel="noopener noreferrer">Política de
+                            Privacidade</a>.
                     </span>
                 </div>
                 <button class="btn" id="btnAuthCadastro" type="button" onclick="cadastrarUsuario()" disabled>
@@ -1017,165 +1089,21 @@
         </div>
     </div>
 
-    <script src="scripts/auth.js"></script> <!-- carrega primeiro -->
-    <script src="scripts/script.js"></script> <!-- usa as funções de auth -->
-
-    <!-- ===================== MODAL LEGAL (Termos / Política) ===================== -->
-    <div id="modalLegal" style="
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: rgba(0,0,0,0.55);
-        backdrop-filter: blur(4px);
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    ">
-        <div style="
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.18);
-            display: flex;
-            flex-direction: column;
-            max-height: 88vh;
-            max-width: 780px;
-            width: 100%;
-            overflow: hidden;
-        ">
-            <!-- Cabeçalho do modal -->
-            <div style="
-                background: linear-gradient(135deg, #1a3c2c 0%, #0f2a1e 100%);
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 20px 24px;
-                flex-shrink: 0;
-            ">
-                <h2 id="modalLegalTitulo" style="font-size: 18px; font-weight: 700; margin: 0;"></h2>
-                <button onclick="fecharModalLegal()" style="
-                    background: rgba(255,255,255,0.15);
-                    border: none;
-                    border-radius: 8px;
-                    color: #fff;
-                    cursor: pointer;
-                    font-size: 18px;
-                    line-height: 1;
-                    padding: 6px 10px;
-                    transition: background 0.2s;
-                " onmouseover="this.style.background='rgba(255,255,255,0.28)'"
-                   onmouseout="this.style.background='rgba(255,255,255,0.15)'"
-                   aria-label="Fechar">✕</button>
-            </div>
-            <!-- Conteúdo rolável -->
-            <div id="modalLegalCorpo" style="
-                overflow-y: auto;
-                padding: 28px 24px;
-                flex: 1;
-                font-family: 'Inter', sans-serif;
-                font-size: 14px;
-                color: #4a5b6e;
-                line-height: 1.7;
-            "></div>
-            <!-- Rodapé -->
-            <div style="
-                border-top: 1px solid #e2e8f0;
-                display: flex;
-                justify-content: flex-end;
-                padding: 14px 24px;
-                flex-shrink: 0;
-            ">
-                <button onclick="fecharModalLegal()" style="
-                    background: #1a3c2c;
-                    border: none;
-                    border-radius: 12px;
-                    color: #fff;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 700;
-                    padding: 10px 22px;
-                    transition: background 0.2s;
-                " onmouseover="this.style.background='#0f2a1e'"
-                   onmouseout="this.style.background='#1a3c2c'">Fechar</button>
-            </div>
+    <div class="legal-document-overlay" id="modalDocumentoLegal" aria-hidden="true">
+        <div class="legal-document-modal" role="dialog" aria-modal="true" aria-labelledby="modalDocumentoLegalTitulo">
+            <header class="legal-document-header">
+                <h2 id="modalDocumentoLegalTitulo">Documento legal</h2>
+                <button class="legal-document-close" type="button" onclick="fecharModal('modalDocumentoLegal')"
+                    aria-label="Fechar documento legal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <iframe id="modalDocumentoLegalFrame" class="legal-document-frame" title="Documento legal"></iframe>
         </div>
     </div>
 
-    <script>
-        /* ---- conteúdo das páginas legais embutido ---- */
-        const _legalContent = {
-            termos: {
-                titulo: "Termos de Uso",
-                html: `
-                    <div style="background:#f0f7f3;border-left:4px solid #1a3c2c;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
-                        <p>Este documento integra um projeto acadêmico e um protótipo funcional, criado para fins de estudo, demonstração e apresentação. A autenticação usa funções serverless Node.js e MongoDB Atlas.</p>
-                    </div>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">1. Uso da plataforma</h3>
-                    <p style="margin-bottom:16px;">O acesso à plataforma deve ser feito apenas para fins acadêmicos, demonstrações e testes relacionados ao projeto integrador. As informações exibidas nos painéis, simuladores e gráficos são exemplos ou dados simulados.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">2. Conta e acesso</h3>
-                    <p style="margin-bottom:16px;">O cadastro, o login e a recuperação de senha são processados pelo backend. Senhas e respostas de recuperação são protegidas com bcrypt, e a sessão autenticada usa JWT armazenado em cookie httpOnly.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">3. Responsabilidades do usuário</h3>
-                    <ul style="margin:0 0 16px 18px;">
-                        <li>Informar dados fictícios ou adequados ao ambiente acadêmico.</li>
-                        <li>Não usar a plataforma como sistema real de gestão, venda, estoque, financeiro ou entrega.</li>
-                        <li>Manter suas credenciais sob cuidado durante os testes.</li>
-                    </ul>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">4. Limitações</h3>
-                    <p style="margin-bottom:16px;">Por ser um protótipo, a plataforma pode conter fluxos incompletos, dados demonstrativos e funcionalidades que simulam processos reais. Nenhuma operação tem validade comercial, fiscal, contábil ou jurídica.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">5. Atualizações dos termos</h3>
-                    <p>Os termos podem ser revisados durante a evolução acadêmica do projeto. Quando a versão mudar, o usuário poderá ser solicitado a aceitar novamente antes de acessar a plataforma.</p>
-                `
-            },
-            politica: {
-                titulo: "Política de Privacidade",
-                html: `
-                    <div style="background:#f0f7f3;border-left:4px solid #1a3c2c;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
-                        <p>Esta política integra um projeto acadêmico e um protótipo funcional. A autenticação é processada por funções serverless Node.js, com persistência no MongoDB Atlas.</p>
-                    </div>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">1. Dados armazenados</h3>
-                    <p style="margin-bottom:16px;">Para permitir o acesso, o backend armazena nome, e-mail, hashes de senha e resposta de recuperação, pergunta de recuperação e informações de aceite dos termos.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">2. Onde os dados ficam</h3>
-                    <p style="margin-bottom:16px;">Os dados cadastrais ficam no MongoDB Atlas. A sessão é representada por um JWT enviado em cookie httpOnly; o token de autenticação não é armazenado no localStorage.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">3. Finalidade</h3>
-                    <ul style="margin:0 0 16px 18px;">
-                        <li>Permitir cadastro, login, recuperação de senha e controle de sessão.</li>
-                        <li>Registrar que o usuário aceitou os Termos de Uso e esta Política de Privacidade.</li>
-                        <li>Demonstrar boas práticas de interface e consentimento em um protótipo acadêmico.</li>
-                    </ul>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">4. Segurança</h3>
-                    <p style="margin-bottom:16px;">Senhas e respostas de recuperação são protegidas com bcrypt no backend. A sessão usa JWT em cookie httpOnly, reduzindo a exposição do token ao JavaScript do navegador. Por ser um protótipo acadêmico, não utilize dados sensíveis reais.</p>
-                    <h3 style="color:#1a3c2c;font-size:15px;margin:0 0 6px;">5. Controle do usuário</h3>
-                    <p>Os dados de conta são persistidos no banco do projeto e não são removidos ao limpar o navegador. Recursos completos de consulta, alteração e exclusão de dados pessoais ainda não foram implementados neste protótipo.</p>
-                `
-            }
-        };
-
-        function abrirModalLegal(tipo) {
-            const dados = _legalContent[tipo];
-            if (!dados) return;
-            document.getElementById('modalLegalTitulo').textContent = dados.titulo;
-            document.getElementById('modalLegalCorpo').innerHTML = dados.html;
-            const modal = document.getElementById('modalLegal');
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function fecharModalLegal() {
-            document.getElementById('modalLegal').style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
-        // Fecha ao clicar fora do painel
-        document.getElementById('modalLegal').addEventListener('click', function(e) {
-            if (e.target === this) fecharModalLegal();
-        });
-
-        // Fecha com ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') fecharModalLegal();
-        });
-    </script>
+    <script src="scripts/auth.js"></script> <!-- carrega primeiro -->
+    <script src="scripts/script.js"></script> <!-- usa as funções de auth -->
 
 </body>
 

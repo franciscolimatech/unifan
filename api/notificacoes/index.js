@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
   return sucesso(res, {
     naoLidas,
-    notificacoes: itens.map(item => ({
+    notificacoes: itens.map((item) => ({
       id: item._id.toString(),
       tipo: item.tipo,
       mensagem: item.mensagem,
