@@ -172,7 +172,7 @@ Como ainda nao existem OS, pedidos ou NF persistidos no banco, esses relatorios 
 
 ## Testes manuais recomendados
 
-Antes de iniciar a fase 5, validar em ambiente com MongoDB real:
+Antes da validacao final em ambiente real com Vercel/MongoDB:
 
 * cadastro novo com aceite de termos;
 * login;
