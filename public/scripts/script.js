@@ -6,6 +6,44 @@
  * aceite de termos foi delegada para o 'public/auth.js' para evitar bugs de UI.
  */
 
+function abrirDocumentoLegal(url, titulo) {
+    const modal = document.getElementById('modalDocumentoLegal');
+    const iframe = document.getElementById('modalDocumentoLegalFrame');
+    const tituloEl = document.getElementById('modalDocumentoLegalTitulo');
+
+    if (!modal || !iframe) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
+    iframe.src = url;
+    iframe.title = titulo || 'Documento legal';
+    if (tituloEl) tituloEl.textContent = titulo || 'Documento legal';
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('legal-document-open');
+}
+
+function fecharModal(modalId) {
+    if (modalId === 'modalAceiteTermos') {
+        return;
+    }
+
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.classList.remove('open');
+
+    if (modalId === 'modalDocumentoLegal') {
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('legal-document-open');
+
+        const iframe = document.getElementById('modalDocumentoLegalFrame');
+        if (iframe) iframe.removeAttribute('src');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // ── NAVEGAÇÃO ENTRE SQUADS (ABAS DO PAINEL) ──
     const buttons = document.querySelectorAll('.squad-btn');
@@ -62,6 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── INICIALIZAÇÃO DE GRÁFICOS E COMPONENTES VISUAIS ──
+    const modalDocumentoLegal = document.getElementById('modalDocumentoLegal');
+    if (modalDocumentoLegal) {
+        modalDocumentoLegal.addEventListener('click', (e) => {
+            if (e.target === modalDocumentoLegal) fecharModal('modalDocumentoLegal');
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fecharModal('modalDocumentoLegal');
+    });
+
     renderizarGraficosPainel();
     inicializarMapaLogistica();
 });
