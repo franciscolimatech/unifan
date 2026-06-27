@@ -671,7 +671,18 @@ body {
 }
 
 .card-financeiro .btn {
+    background: #f6faf7;
+    border-color: #d6e8dd;
+    box-shadow: none;
+    color: #1a3c2c;
     margin-top: auto;
+}
+
+.card-financeiro .btn:hover {
+    background: #eaf5ef;
+    border-color: #bddcc8;
+    box-shadow: 0 8px 18px rgba(26, 60, 44, 0.08);
+    color: #143224;
 }
 
 .card-financeiro .btn i {
@@ -1063,6 +1074,26 @@ body {
     margin-top: 0;
     flex: 1;
     min-width: 120px;
+}
+
+#modalDesconto .modal-btns .btn:not(.btn-secondary),
+#modalParcelamento .modal-btns .btn:not(.btn-secondary),
+#modalReciboFatura .modal-btns .btn:not(.btn-secondary),
+#modalAnaliseABC .modal-btns .btn:not(.btn-secondary) {
+    background: #f6faf7;
+    border-color: #d6e8dd;
+    box-shadow: none;
+    color: #1a3c2c;
+}
+
+#modalDesconto .modal-btns .btn:not(.btn-secondary):hover,
+#modalParcelamento .modal-btns .btn:not(.btn-secondary):hover,
+#modalReciboFatura .modal-btns .btn:not(.btn-secondary):hover,
+#modalAnaliseABC .modal-btns .btn:not(.btn-secondary):hover {
+    background: #eaf5ef;
+    border-color: #bddcc8;
+    box-shadow: 0 8px 18px rgba(26, 60, 44, 0.08);
+    color: #143224;
 }
 
 .taxa-info {
