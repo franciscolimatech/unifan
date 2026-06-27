@@ -146,6 +146,8 @@ GET /api/integracoes
 
 Esse endpoint e autenticado para manter o mesmo padrao de protecao das APIs do projeto. Ele nao retorna dados de negocio, apenas documenta contratos disponiveis para intercambio: nome do sistema, versao da API, data de geracao, endpoints, metodos HTTP, parametros aceitos, corpo esperado e observacoes de autenticacao.
 
+Na Vercel, a URL publica `/api/integracoes` e preservada por rewrite para a funcao de exportacao da Comunidade, evitando ultrapassar o limite de Serverless Functions do plano Hobby.
+
 O intercambio inicial e feito por JSON autenticado, principalmente pelo endpoint:
 
 ```text

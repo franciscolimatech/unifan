@@ -4,6 +4,10 @@
   "outputDirectory": "public",
   "routes": [
     {
+      "src": "/api/integracoes",
+      "dest": "/api/export/comunidade?tipo=integracoes"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
