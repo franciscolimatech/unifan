@@ -505,8 +505,8 @@
         <div id="comunidade-view" class="squad-view">
             <div class="community-toolbar">
                 <div class="form-group">
-                    <label for="buscaConteudo">Busca de conteudo</label>
-                    <input type="search" id="buscaConteudo" placeholder="Buscar por legenda, autor ou comentario">
+                    <label for="buscaConteudo">Busca de conteúdo</label>
+                    <input type="search" id="buscaConteudo" placeholder="Buscar por legenda, autor ou comentário">
                 </div>
                 <button class="btn btn-secondary" id="btnAtualizarComunidade" type="button">
                     <i class="fas fa-rotate"></i> Atualizar
@@ -554,7 +554,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-image"></i> Nova publicacao</h3>
+                        <h3><i class="fas fa-image"></i> Nova publicação</h3>
                         <span class="badge">Feed</span>
                     </div>
                     <form id="formPublicacao" class="community-form">
@@ -568,7 +568,7 @@
                         </div>
                         <div class="form-group">
                             <label for="postLegenda">Legenda</label>
-                            <input type="text" id="postLegenda" maxlength="280" placeholder="Descreva a publicacao">
+                            <input type="text" id="postLegenda" maxlength="280" placeholder="Descreva a publicação">
                         </div>
                         <button class="btn" type="submit">
                             <i class="fas fa-paper-plane"></i> Publicar
@@ -583,7 +583,7 @@
                         <span class="badge" id="contadorNotificacoes">0 novas</span>
                     </div>
                     <div class="notification-list" id="listaNotificacoes">
-                        <div class="empty-state">Nenhuma notificacao carregada.</div>
+                        <div class="empty-state">Nenhuma notificação carregada.</div>
                     </div>
                     <button class="btn btn-secondary" id="btnMarcarNotificacoes" type="button">
                         <i class="fas fa-check-double"></i> Marcar como lidas
@@ -616,8 +616,8 @@
                             <label for="relatorioStatus">Status</label>
                             <select id="relatorioStatus">
                                 <option value="">Todos</option>
-                                <option value="comentado">Com comentarios</option>
-                                <option value="sem-comentarios">Sem comentarios</option>
+                                <option value="comentado">Com comentários</option>
+                                <option value="sem-comentarios">Sem comentários</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -629,24 +629,24 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="relatorioUsuario">Usuario</label>
+                            <label for="relatorioUsuario">Usuário</label>
                             <input type="search" id="relatorioUsuario" placeholder="Filtrar por autor">
                         </div>
                         <div class="form-group">
-                            <label for="relatorioBusca">Busca no relatorio</label>
-                            <input type="search" id="relatorioBusca" placeholder="Termo em legenda ou comentario">
+                            <label for="relatorioBusca">Busca no relatório</label>
+                            <input type="search" id="relatorioBusca" placeholder="Termo em legenda ou comentário">
                         </div>
                         <div class="form-group">
                             <label for="relatorioAgrupar">Agrupar por</label>
                             <select id="relatorioAgrupar">
                                 <option value="categoria">Categoria</option>
-                                <option value="usuario">Usuario</option>
+                                <option value="usuario">Usuário</option>
                                 <option value="status">Status</option>
                                 <option value="tipo">Tipo</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="relatorioGraficoTipo">Grafico</label>
+                            <label for="relatorioGraficoTipo">Gráfico</label>
                             <select id="relatorioGraficoTipo">
                                 <option value="bar">Barra</option>
                                 <option value="pie">Pizza</option>
@@ -655,7 +655,7 @@
                         </div>
                     </div>
                     <div class="report-summary" id="resumoRelatorioComunidade">
-                        <div class="empty-state">Carregando indicadores do relatorio...</div>
+                        <div class="empty-state">Carregando indicadores do relatório...</div>
                     </div>
                     <div class="chart-container report-chart">
                         <canvas id="graficoRelatorioComunidade"></canvas>
@@ -668,12 +668,12 @@
                                     <th><button type="button" data-report-sort="autorNome">Autor</button></th>
                                     <th><button type="button" data-report-sort="categoria">Categoria</button></th>
                                     <th><button type="button" data-report-sort="status">Status</button></th>
-                                    <th><button type="button" data-report-sort="comentarios">Comentarios</button></th>
+                                    <th><button type="button" data-report-sort="comentarios">Comentários</button></th>
                                 </tr>
                             </thead>
                             <tbody id="corpoRelatorioComunidade">
                                 <tr>
-                                    <td colspan="5">Carregando relatorio...</td>
+                                    <td colspan="5">Carregando relatório...</td>
                                 </tr>
                             </tbody>
                             <tfoot id="rodapeRelatorioComunidade">
@@ -687,11 +687,11 @@
 
                 <div class="card community-feed-card">
                     <div class="card-header">
-                        <h3><i class="fas fa-newspaper"></i> Publicacoes, Depoimentos e Comentarios</h3>
+                        <h3><i class="fas fa-newspaper"></i> Publicações, Depoimentos e Comentários</h3>
                         <span class="badge" id="contadorPosts">0 itens</span>
                     </div>
                     <div class="feed-list" id="listaPosts">
-                        <div class="empty-state">Carregando conteudo...</div>
+                        <div class="empty-state">Carregando conteúdo...</div>
                     </div>
                 </div>
             </div>

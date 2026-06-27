@@ -48,6 +48,124 @@ let comunidadePostsCache = [];
 let relatorioOrdenacao = { campo: 'criadoEm', direcao: 'desc' };
 let graficoRelatorioComunidade = null;
 
+function valorMonetario(valor) {
+    return Number(valor || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    });
+}
+
+function mostrarResultadoOperacional(elementoId, tipo, conteudo) {
+    const resultado = document.getElementById(elementoId);
+    if (!resultado) return;
+
+    resultado.classList.add('visible');
+    resultado.classList.remove('success', 'warning');
+    if (tipo) resultado.classList.add(tipo);
+    resultado.innerHTML = conteudo;
+}
+
+function calcularDesconto() {
+    const categoria = document.getElementById('simCategoria')?.value || '';
+    const preco = Number(document.getElementById('simPreco')?.value || 0);
+    const desconto = Number(document.getElementById('simDesconto')?.value || 0);
+    const [margem, descontoSeguro, descontoCritico] = categoria.split(',').map(Number);
+
+    if (!preco || preco <= 0 || desconto < 0 || desconto > 100) {
+        mostrarResultadoOperacional(
+            'resultadoDesconto',
+            'warning',
+            '<p>Informe um preço válido e um desconto entre 0% e 100%.</p>'
+        );
+        return;
+    }
+
+    const precoFinal = preco * (1 - desconto / 100);
+    const status = desconto <= descontoSeguro
+        ? 'Desconto dentro da margem segura.'
+        : desconto <= descontoCritico
+            ? 'Atenção: desconto próximo do limite financeiro.'
+            : 'Risco alto: desconto acima do limite recomendado.';
+
+    mostrarResultadoOperacional('resultadoDesconto', desconto <= descontoSeguro ? 'success' : 'warning', `
+        <p><strong>Preço final:</strong> ${valorMonetario(precoFinal)}</p>
+        <p><strong>Margem média da categoria:</strong> ${margem.toFixed(2).replace('.', ',')}%</p>
+        <p>${status}</p>
+    `);
+}
+
+function atualizarInfoTaxa() {
+    const valor = document.getElementById('parForma')?.value || '';
+    const [forma, taxaRaw, parcelasRaw] = valor.split(',');
+    const taxa = Number(taxaRaw || 0);
+    const parcelas = Number(parcelasRaw || 1);
+
+    const texto = forma === 'boleto'
+        ? 'Boleto: custo fixo de R$ 3,50 para o lojista, com liquidação estimada em D+2.'
+        : `Cartão de crédito em ${parcelas}x: custo estimado de ${(taxa * 100).toFixed(2).replace('.', ',')}% para o lojista.`;
+
+    const taxaInfo = document.getElementById('taxaInfo');
+    if (taxaInfo) taxaInfo.textContent = texto;
+}
+
+function calcularParcelamento() {
+    const valorCompra = Number(document.getElementById('parValor')?.value || 0);
+    const formaSelecionada = document.getElementById('parForma')?.value || '';
+    const [forma, taxaRaw, parcelasRaw] = formaSelecionada.split(',');
+    const taxa = Number(taxaRaw || 0);
+    const parcelas = Number(parcelasRaw || 1);
+
+    if (!valorCompra || valorCompra <= 0) {
+        mostrarResultadoOperacional(
+            'resultadoParcelamento',
+            'warning',
+            '<p>Informe um valor de compra válido para simular o parcelamento.</p>'
+        );
+        return;
+    }
+
+    const custo = forma === 'boleto' ? taxa : valorCompra * taxa;
+    const valorLiquido = Math.max(valorCompra - custo, 0);
+    const valorParcela = valorCompra / parcelas;
+
+    mostrarResultadoOperacional('resultadoParcelamento', 'success', `
+        <p><strong>Parcelas:</strong> ${parcelas}x de ${valorMonetario(valorParcela)}</p>
+        <p><strong>Custo estimado:</strong> ${valorMonetario(custo)}</p>
+        <p><strong>Valor líquido para o lojista:</strong> ${valorMonetario(valorLiquido)}</p>
+    `);
+}
+
+function emitirDocumentoDemonstrativo() {
+    const tipo = document.getElementById('docTipo')?.value || 'Documento';
+    const valor = Number(document.getElementById('docValor')?.value || 0);
+    const cliente = document.getElementById('docCliente')?.value.trim() || 'Cliente não informado';
+    const descricao = document.getElementById('docDescricao')?.value.trim() || 'Descrição não informada';
+
+    if (!valor || valor <= 0) {
+        mostrarResultadoOperacional(
+            'resultadoReciboFatura',
+            'warning',
+            '<p>Informe um valor válido para montar a prévia do documento.</p>'
+        );
+        return;
+    }
+
+    mostrarResultadoOperacional('resultadoReciboFatura', 'success', `
+        <p><strong>${tipo} demonstrativo gerado para revisão.</strong></p>
+        <p><strong>Cliente:</strong> ${escaparHtml(cliente)}</p>
+        <p><strong>Descrição:</strong> ${escaparHtml(descricao)}</p>
+        <p><strong>Valor:</strong> ${valorMonetario(valor)}</p>
+        <p>Este módulo é uma simulação visual; a emissão fiscal real depende de integração futura.</p>
+    `);
+}
+
+function recalcularCenarioABC() {
+    mostrarResultadoOperacional('resultadoAnaliseABC', 'success', `
+        <p><strong>Cenário demonstrativo atualizado.</strong></p>
+        <p>Classe A segue como prioridade de reposição e margem. Classe B exige acompanhamento de giro. Classe C deve ser revisada para reduzir capital parado.</p>
+    `);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // ── NAVEGAÇÃO ENTRE SQUADS (ABAS DO PAINEL) ──
     const buttons = document.querySelectorAll('.squad-btn');
@@ -89,6 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarModalOperacional('btnSimularParcelamento', 'modalParcelamento');
     configurarModalOperacional('btnGerarRecibo', 'modalReciboFatura');
     configurarModalOperacional('btnAnaliseABC', 'modalAnaliseABC');
+    document.getElementById('btnEmitirDocumento')?.addEventListener('click', emitirDocumentoDemonstrativo);
+    document.getElementById('btnRecalcularABC')?.addEventListener('click', recalcularCenarioABC);
+    atualizarInfoTaxa();
 
     // ── FECHAMENTO SEGURO DE MODAIS ──
     // Fecha os modais operacionais ao clicar na área escura de overlay
@@ -257,7 +378,7 @@ function iniciais(nome) {
 }
 
 function avatarHtml(nome, avatar, classe = 'feed-avatar') {
-    const nomeSeguro = escaparHtml(nome || 'Usuario');
+    const nomeSeguro = escaparHtml(nome || 'Usuário');
     const avatarSeguro = imagemSegura(avatar);
     const conteudo = avatarSeguro
         ? `<img src="${escaparHtml(avatarSeguro)}" alt="Avatar de ${nomeSeguro}">`
@@ -285,13 +406,13 @@ async function arquivoParaBase64(input) {
     }
 
     if (arquivo.size > 700 * 1024) {
-        throw new Error('Use uma imagem menor que 700 KB para este prototipo.');
+        throw new Error('Use uma imagem menor que 700 KB para este protótipo.');
     }
 
     return new Promise((resolve, reject) => {
         const leitor = new FileReader();
         leitor.onload = () => resolve(leitor.result);
-        leitor.onerror = () => reject(new Error('Nao foi possivel ler a imagem.'));
+        leitor.onerror = () => reject(new Error('Não foi possível ler a imagem.'));
         leitor.readAsDataURL(arquivo);
     });
 }
@@ -320,7 +441,7 @@ function renderizarPosts(posts) {
     if (contador) contador.textContent = `${posts.length} itens`;
 
     if (!posts.length) {
-        lista.innerHTML = '<div class="empty-state">Nenhum conteudo encontrado.</div>';
+        lista.innerHTML = '<div class="empty-state">Nenhum conteúdo encontrado.</div>';
         return;
     }
 
@@ -337,7 +458,7 @@ function renderizarPosts(posts) {
                         <div class="feed-date">${escaparHtml(formatarDataComunidade(post.criadoEm))}</div>
                     </div>
                 </div>
-                ${imagem ? `<img class="feed-image" src="${escaparHtml(imagem)}" alt="Imagem da publicacao">` : ''}
+                ${imagem ? `<img class="feed-image" src="${escaparHtml(imagem)}" alt="Imagem da publicação">` : ''}
                 <p class="feed-caption">${escaparHtml(post.legenda || '')}</p>
                 <div class="feed-actions">
                     <button class="btn btn-secondary btn-share-post" type="button" data-share-toggle>
@@ -345,7 +466,7 @@ function renderizarPosts(posts) {
                     </button>
                 </div>
                 <form class="share-form" data-post-id="${escaparHtml(post.id)}" hidden>
-                    <input type="email" name="destinatarioEmail" maxlength="254" placeholder="E-mail do destinatario" required>
+                    <input type="email" name="destinatarioEmail" maxlength="254" placeholder="E-mail do destinatário" required>
                     <input type="text" name="mensagem" maxlength="180" placeholder="Mensagem opcional">
                     <button class="btn btn-secondary" type="submit">
                         <i class="fas fa-paper-plane"></i> Enviar
@@ -360,11 +481,11 @@ function renderizarPosts(posts) {
                                 ${escaparHtml(comentario.texto)}
                             </div>
                         `).join('')
-                        : '<div class="empty-state">Sem comentarios ainda.</div>'}
+                        : '<div class="empty-state">Sem comentários ainda.</div>'}
                 </div>
                 <form class="comment-form" data-post-id="${escaparHtml(post.id)}">
-                    <input type="text" name="comentario" maxlength="240" placeholder="Escrever depoimento ou comentario">
-                    <button class="btn btn-secondary" type="submit" aria-label="Enviar comentario">
+                    <input type="text" name="comentario" maxlength="240" placeholder="Escrever depoimento ou comentário">
+                    <button class="btn btn-secondary" type="submit" aria-label="Enviar comentário">
                         <i class="fas fa-comment"></i>
                     </button>
                 </form>
@@ -399,7 +520,7 @@ async function compartilharPost(form) {
     const mensagem = form.elements.mensagem?.value.trim() || '';
 
     if (!destinatarioEmail) {
-        mostrarMensagemCompartilhamento(form, 'error', 'Informe o e-mail do destinatario.');
+        mostrarMensagemCompartilhamento(form, 'error', 'Informe o e-mail do destinatário.');
         return;
     }
 
@@ -413,14 +534,14 @@ async function compartilharPost(form) {
         });
 
         if (!resultado.ok) {
-            mostrarMensagemCompartilhamento(form, 'error', resultado.erro || 'Nao foi possivel compartilhar.');
+            mostrarMensagemCompartilhamento(form, 'error', resultado.erro || 'Não foi possível compartilhar.');
             return;
         }
 
         form.reset();
-        mostrarMensagemCompartilhamento(form, 'success', 'Publicacao compartilhada com sucesso.');
+        mostrarMensagemCompartilhamento(form, 'success', 'Publicação compartilhada com sucesso.');
     } catch (error) {
-        mostrarMensagemCompartilhamento(form, 'error', error.message || 'Erro ao compartilhar publicacao.');
+        mostrarMensagemCompartilhamento(form, 'error', error.message || 'Erro ao compartilhar publicação.');
     }
 }
 
@@ -450,12 +571,12 @@ function rotuloRelatorio(campo, valor) {
         'somente-texto': 'Somente texto',
         imagem: 'Com imagem',
         texto: 'Somente texto',
-        comentado: 'Com comentarios',
-        'sem-comentarios': 'Sem comentarios',
+        comentado: 'Com comentários',
+        'sem-comentarios': 'Sem comentários',
     };
 
-    if (campo === 'usuario') return valor || 'Usuario';
-    return rotulos[valor] || valor || 'Nao informado';
+    if (campo === 'usuario') return valor || 'Usuário';
+    return rotulos[valor] || valor || 'Não informado';
 }
 
 function lerFiltrosRelatorio() {
@@ -539,7 +660,7 @@ function ordenarPostsRelatorio(posts) {
 function agruparPostsRelatorio(posts, campo) {
     return posts.reduce((grupos, post) => {
         const chave = campo === 'usuario'
-            ? (post.autorNome || 'Usuario')
+            ? (post.autorNome || 'Usuário')
             : campo === 'status'
                 ? statusPostRelatorio(post)
                 : campo === 'tipo'
@@ -566,10 +687,10 @@ function renderizarResumoRelatorio(posts) {
 
     if (contador) contador.textContent = `${totalPosts} itens`;
     resumo.innerHTML = [
-        ['Publicacoes', totalPosts],
-        ['Comentarios', totalComentarios],
+        ['Publicações', totalPosts],
+        ['Comentários', totalComentarios],
         ['Com imagem', comImagem],
-        ['Media comentarios/post', mediaComentarios],
+        ['Média comentários/post', mediaComentarios],
     ].map(([rotulo, valor]) => `
         <div class="report-summary-item">
             <strong>${escaparHtml(valor)}</strong>
@@ -585,7 +706,7 @@ function renderizarTabelaRelatorio(posts) {
 
     if (!posts.length) {
         corpo.innerHTML = '<tr><td colspan="5">Nenhum item encontrado para os filtros atuais.</td></tr>';
-        rodape.innerHTML = '<tr><td colspan="5">Total: 0 publicacoes | Comentarios: 0 | Media: 0.0</td></tr>';
+        rodape.innerHTML = '<tr><td colspan="5">Total: 0 publicações | Comentários: 0 | Média: 0.0</td></tr>';
         return;
     }
 
@@ -596,7 +717,7 @@ function renderizarTabelaRelatorio(posts) {
         return `
             <tr>
                 <td>${escaparHtml(formatarDataComunidade(post.criadoEm))}</td>
-                <td>${escaparHtml(post.autorNome || 'Usuario')}</td>
+                <td>${escaparHtml(post.autorNome || 'Usuário')}</td>
                 <td>${escaparHtml(rotuloRelatorio('categoria', categoriaPostRelatorio(post)))}${legenda}</td>
                 <td>${escaparHtml(rotuloRelatorio('status', statusPostRelatorio(post)))}</td>
                 <td>${escaparHtml(comentarios)}</td>
@@ -608,7 +729,7 @@ function renderizarTabelaRelatorio(posts) {
     const mediaComentarios = posts.length ? (totalComentarios / posts.length).toFixed(1) : '0.0';
     rodape.innerHTML = `
         <tr>
-            <td colspan="5">Total: ${escaparHtml(posts.length)} publicacoes | Soma de comentarios: ${escaparHtml(totalComentarios)} | Media: ${escaparHtml(mediaComentarios)} comentarios por post</td>
+            <td colspan="5">Total: ${escaparHtml(posts.length)} publicações | Soma de comentários: ${escaparHtml(totalComentarios)} | Média: ${escaparHtml(mediaComentarios)} comentários por post</td>
         </tr>
     `;
 }
@@ -633,20 +754,20 @@ function renderizarGraficoRelatorio(posts, filtros) {
             labels,
             datasets: tipo === 'pie'
                 ? [{
-                    label: 'Publicacoes',
+                    label: 'Publicações',
                     data: postsPorGrupo,
                     backgroundColor: ['#1a3c2c', '#ff9800', '#1565c0', '#6a1b9a', '#2e7d32'],
                 }]
                 : [
                     {
-                        label: 'Publicacoes',
+                        label: 'Publicações',
                         data: postsPorGrupo,
                         backgroundColor: '#1a3c2c',
                         borderColor: '#1a3c2c',
                         tension: 0.3,
                     },
                     {
-                        label: 'Comentarios',
+                        label: 'Comentários',
                         data: comentariosPorGrupo,
                         backgroundColor: '#ff9800',
                         borderColor: '#ff9800',
@@ -697,7 +818,7 @@ function renderizarNotificacoes(notificacoes, naoLidas) {
     if (!lista) return;
 
     if (!notificacoes.length) {
-        lista.innerHTML = '<div class="empty-state">Nenhuma notificacao por enquanto.</div>';
+        lista.innerHTML = '<div class="empty-state">Nenhuma notificação por enquanto.</div>';
         return;
     }
 
@@ -721,7 +842,7 @@ function nomeArquivoExportacao(resposta, formato) {
 
 async function baixarExportacaoComunidade(formato) {
     try {
-        mostrarMensagemComunidade('exportMensagem', 'success', `Preparando exportacao ${formato.toUpperCase()}...`);
+        mostrarMensagemComunidade('exportMensagem', 'success', `Preparando exportação ${formato.toUpperCase()}...`);
 
         const resposta = await fetch(`/api/export/comunidade?formato=${encodeURIComponent(formato)}`, {
             method: 'GET',
@@ -730,7 +851,7 @@ async function baixarExportacaoComunidade(formato) {
 
         if (!resposta.ok) {
             const json = await resposta.json().catch(() => null);
-            throw new Error(json?.erro || 'Nao foi possivel gerar o arquivo de exportacao.');
+            throw new Error(json?.erro || 'Não foi possível gerar o arquivo de exportação.');
         }
 
         const blob = await resposta.blob();
@@ -743,7 +864,7 @@ async function baixarExportacaoComunidade(formato) {
         link.remove();
         URL.revokeObjectURL(url);
 
-        mostrarMensagemComunidade('exportMensagem', 'success', `Exportacao ${formato.toUpperCase()} gerada com sucesso.`);
+        mostrarMensagemComunidade('exportMensagem', 'success', `Exportação ${formato.toUpperCase()} gerada com sucesso.`);
     } catch (error) {
         mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao exportar dados.');
     }
@@ -760,14 +881,14 @@ function textoImagemRelatorio(imagemUrl) {
 
 function comentariosRelatorioHtml(comentarios) {
     if (!comentarios?.length) {
-        return '<p class="empty">Sem comentarios.</p>';
+        return '<p class="empty">Sem comentários.</p>';
     }
 
     return `
         <ul>
             ${comentarios.map((comentario) => `
                 <li>
-                    <strong>${escaparHtml(comentario.autor || comentario.autorNome || 'Usuario')}:</strong>
+                    <strong>${escaparHtml(comentario.autor || comentario.autorNome || 'Usuário')}:</strong>
                     ${escaparHtml(comentario.texto || '')}
                     <span>${escaparHtml(formatarDataComunidade(comentario.criadoEm))}</span>
                 </li>
@@ -784,7 +905,7 @@ function montarRelatorioComunidadeHtml(dados) {
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <title>Relatorio da Comunidade</title>
+    <title>Relatório da Comunidade</title>
     <style>
         body {
             color: #1f2933;
@@ -843,7 +964,7 @@ function montarRelatorioComunidadeHtml(dados) {
     </style>
 </head>
 <body>
-    <h1>Relatorio da Comunidade</h1>
+    <h1>Relatório da Comunidade</h1>
     <div class="meta">
         Gerado em ${escaparHtml(geradoEm)}<br>
         Total de posts: ${escaparHtml(posts.length)}
@@ -853,15 +974,15 @@ function montarRelatorioComunidadeHtml(dados) {
 
         return `
             <article>
-                <h2>${escaparHtml(post.autor || 'Usuario')}</h2>
+                <h2>${escaparHtml(post.autor || 'Usuário')}</h2>
                 <p><span class="label">Data:</span> ${escaparHtml(formatarDataComunidade(post.criadoEm))}</p>
                 <p><span class="label">Legenda:</span> ${escaparHtml(post.legenda || '')}</p>
                 ${imagem ? `<p class="image-url"><span class="label">Imagem:</span> ${escaparHtml(imagem)}</p>` : ''}
-                <p><span class="label">Comentarios:</span> ${escaparHtml(post.quantidadeComentarios || 0)}</p>
+                <p><span class="label">Comentários:</span> ${escaparHtml(post.quantidadeComentarios || 0)}</p>
                 ${comentariosRelatorioHtml(post.comentarios || [])}
             </article>
         `;
-    }).join('') : '<p class="empty">Nenhum post encontrado para exportacao.</p>'}
+    }).join('') : '<p class="empty">Nenhum post encontrado para exportação.</p>'}
 </body>
 </html>`;
 }
@@ -870,15 +991,15 @@ async function imprimirExportacaoComunidadePdf() {
     let janela = null;
 
     try {
-        mostrarMensagemComunidade('exportMensagem', 'success', 'Preparando relatorio imprimivel...');
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Preparando relatório imprimível...');
 
         janela = window.open('', '_blank');
         if (!janela) {
-            throw new Error('Permita pop-ups para abrir o relatorio imprimivel.');
+            throw new Error('Permita pop-ups para abrir o relatório imprimível.');
         }
 
         janela.document.open();
-        janela.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatorio da Comunidade</title></head><body><p>Preparando relatorio...</p></body></html>');
+        janela.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório da Comunidade</title></head><body><p>Preparando relatório...</p></body></html>');
         janela.document.close();
 
         const resposta = await fetch('/api/export/comunidade?formato=json', {
@@ -888,7 +1009,7 @@ async function imprimirExportacaoComunidadePdf() {
         const resultado = await resposta.json().catch(() => null);
 
         if (!resposta.ok || !resultado?.ok) {
-            throw new Error(resultado?.erro || 'Nao foi possivel gerar o relatorio.');
+            throw new Error(resultado?.erro || 'Não foi possível gerar o relatório.');
         }
 
         janela.document.open();
@@ -897,11 +1018,11 @@ async function imprimirExportacaoComunidadePdf() {
         janela.focus();
         setTimeout(() => janela.print(), 300);
 
-        mostrarMensagemComunidade('exportMensagem', 'success', 'Relatorio aberto. Use a impressao do navegador para salvar em PDF.');
+        mostrarMensagemComunidade('exportMensagem', 'success', 'Relatório aberto. Use a impressão do navegador para salvar em PDF.');
     } catch (error) {
         if (janela && !janela.closed) {
             janela.document.open();
-            janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Erro na exportacao</title></head><body><p>${escaparHtml(error.message || 'Erro ao gerar PDF.')}</p></body></html>`);
+            janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Erro na exportação</title></head><body><p>${escaparHtml(error.message || 'Erro ao gerar PDF.')}</p></body></html>`);
             janela.document.close();
         }
         mostrarMensagemComunidade('exportMensagem', 'error', error.message || 'Erro ao gerar PDF.');
@@ -986,7 +1107,7 @@ function inicializarComunidade() {
             atualizarPreviewAvatar(resultado.dados.usuario.avatar);
             carregarConteudoComunidade();
         } else {
-            mostrarMensagemComunidade('perfilMensagem', 'error', resultado.erro || 'Nao foi possivel salvar o perfil.');
+            mostrarMensagemComunidade('perfilMensagem', 'error', resultado.erro || 'Não foi possível salvar o perfil.');
         }
     });
 
@@ -1006,7 +1127,7 @@ function inicializarComunidade() {
                 mostrarMensagemComunidade('postMensagem', 'success', 'Publicacao criada.');
                 carregarConteudoComunidade();
             } else {
-                mostrarMensagemComunidade('postMensagem', 'error', resultado.erro || 'Nao foi possivel publicar.');
+                mostrarMensagemComunidade('postMensagem', 'error', resultado.erro || 'Não foi possível publicar.');
             }
         } catch (error) {
             mostrarMensagemComunidade('postMensagem', 'error', error.message);

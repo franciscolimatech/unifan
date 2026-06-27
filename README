@@ -1,31 +1,31 @@
-# Cristovao Materiais - Plataforma Omnichannel
+# Cristóvão Materiais - Plataforma Omnichannel
 
-Este projeto e um prototipo academico para simular uma plataforma de gestao da Cristovao Materiais de Construcao. A interface reune modulos de vendas, financeiro, producao, estoque, logistica, compras e comunidade em uma unica aplicacao web.
+Este projeto é um protótipo acadêmico para simular uma plataforma de gestão da Cristóvão Materiais de Construção. A interface reúne módulos de vendas, financeiro, produção, estoque, logística, compras e comunidade em uma única aplicação web.
 
-O projeto usa frontend estatico com HTML, CSS e JavaScript, funcoes serverless Node.js na Vercel, MongoDB Atlas, bcryptjs para senhas/respostas de recuperacao e JWT em cookie httpOnly para sessao.
+O projeto usa frontend estático com HTML, CSS e JavaScript, funções serverless Node.js na Vercel, MongoDB Atlas, bcryptjs para senhas/respostas de recuperação e JWT em cookie httpOnly para sessão.
 
 ## Tecnologias usadas
 
 * HTML, CSS e JavaScript
-* Node.js em funcoes serverless pela Vercel
+* Node.js em funções serverless pela Vercel
 * MongoDB Atlas
-* bcryptjs para proteger senhas e respostas de recuperacao
-* JWT em cookie httpOnly para manter a sessao do usuario
+* bcryptjs para proteger senhas e respostas de recuperação
+* JWT em cookie httpOnly para manter a sessão do usuário
 
 ## Estrutura do projeto
 
 ```text
-api/             Endpoints de autenticacao, usuarios, posts e notificacoes
-lib/             Conexao com banco, autenticacao, respostas e schemas
-public/          Telas, estilos, scripts, imagens e paginas legais
-scripts/         Scripts auxiliares de validacao local
-setup-db.js      Script para criacao dos indices no MongoDB
-vercel.json      Configuracao de rotas e deploy na Vercel
+api/             Endpoints de autenticação, usuários, posts e notificações
+lib/             Conexão com banco, autenticação, respostas e schemas
+public/          Telas, estilos, scripts, imagens e páginas legais
+scripts/         Scripts auxiliares de validação local
+setup-db.js      Script para criação dos índices no MongoDB
+vercel.json      Configuração de rotas e deploy na Vercel
 ```
 
-## Variaveis de ambiente
+## Variáveis de ambiente
 
-Para rodar o projeto, configure as variaveis abaixo. Os valores reais nao devem ser enviados para o GitHub.
+Para rodar o projeto, configure as variáveis abaixo. Os valores reais não devem ser enviados para o GitHub.
 
 ```text
 MONGODB_URI=mongodb+srv://<usuario>:<senha>@<cluster>/<banco>
@@ -34,7 +34,7 @@ JWT_SECRET=<segredo-longo-e-aleatorio>
 VERSAO_TERMOS_ATUAL=1.0.0
 ```
 
-As variaveis `MONGODB_URI` e `JWT_SECRET` sao obrigatorias. As outras possuem valores padrao no projeto.
+As variáveis `MONGODB_URI` e `JWT_SECRET` são obrigatórias. As outras possuem valores padrão no projeto.
 
 ## Como rodar localmente
 
@@ -42,56 +42,58 @@ Requisitos:
 
 * Node.js 20 ou superior
 * Conta ou cluster configurado no MongoDB Atlas
-* Vercel CLI ou execucao via `npx vercel dev`
+* Vercel CLI ou execução via `npx vercel dev`
 
-Passos basicos:
+Passos básicos:
 
 ```bash
 npm install
 npx vercel dev
 ```
 
-Para criar os indices necessarios no banco, use:
+Para criar os índices necessários no banco, use:
 
 ```bash
 node setup-db.js
 ```
 
-Esse comando so deve ser executado depois de configurar corretamente as variaveis de ambiente.
+Esse comando só deve ser executado depois de configurar corretamente as variáveis de ambiente.
 
 ## Status por fase do roadmap
 
-| Fase | Status | Observacao |
+| Fase | Status | Observação |
 | --- | --- | --- |
-| 1. Definicao e recorte tecnico | Parcial/documentada | O README e a interface documentam o recorte geral e os setores, mas ainda nao ha documento formal de pesquisa, dependencias e hierarquia entre equipes. |
-| 2. Autenticacao e acesso | Implementada com ressalvas | Cadastro, login, sessao, logout e recuperacao de senha usam backend, MongoDB, bcrypt e JWT em cookie httpOnly. Ainda faltam testes reais e protecoes adicionais como rate limit. |
-| 3. Termos e condicoes | Implementada com ressalvas | Termos, politica, aceite/reaceite e bloqueio de acesso estao integrados ao backend. Ainda precisa teste manual completo com mudanca de versao dos termos. |
-| 4. Funcionalidades do usuario | Implementada, pendente teste real | Ja existem edicao de perfil, avatar, publicacoes, imagem por URL ou upload/base64, legendas, comentarios/depoimentos, notificacoes e busca de conteudo. Ainda precisa validacao ponta a ponta com MongoDB real. |
-| 5. Exportacao e compartilhamento | Implementada/parcial | As Fases 5.1 a 5.4 adicionam exportacao CSV/JSON, relatorio imprimivel para PDF, compartilhamento inicial de publicacoes e manifesto JSON autenticado da API. Excel `.xlsx`, PDF binario no backend, integracoes externas reais e compartilhamento de OS, pedidos ou NF ainda nao foram implementados. |
-| 6. Filtros, pesquisa e relatorios | Implementada/parcial | A Fase 6 adiciona relatorio dinamico da Comunidade com filtros por periodo, tipo, usuario, status e categoria, busca interna, ordenacao por colunas, agrupamento, totais, medias e grafico. Ainda precisa validacao com dados reais no MongoDB. |
+| 1. Definição e recorte técnico | Parcial/documentada | O README e a interface documentam o recorte geral e os setores, mas ainda não há documento formal de pesquisa, dependências e hierarquia entre equipes. |
+| 2. Autenticação e acesso | Implementada com ressalvas | Cadastro, login, sessão, logout e recuperação de senha usam backend, MongoDB, bcrypt e JWT em cookie httpOnly. Ainda faltam testes reais e proteções adicionais como rate limit. |
+| 3. Termos e condições | Implementada com ressalvas | Termos, política, aceite/reaceite e bloqueio de acesso estão integrados ao backend. Ainda precisa teste manual completo com mudança de versão dos termos. |
+| 4. Funcionalidades do usuário | Implementada, pendente teste real | Já existem edição de perfil, avatar, publicações, imagem por URL ou upload/base64, legendas, comentários/depoimentos, notificações e busca de conteúdo. Ainda precisa validação ponta a ponta com MongoDB real. |
+| 5. Exportação e compartilhamento | Implementada/parcial | As Fases 5.1 a 5.4 adicionam exportação CSV/JSON, relatório imprimível para PDF, compartilhamento inicial de publicações e manifesto JSON autenticado da API. Excel `.xlsx`, PDF binário no backend, integrações externas reais e compartilhamento de OS, pedidos ou NF ainda não foram implementados. |
+| 6. Filtros, pesquisa e relatórios | Implementada/parcial | A Fase 6 adiciona relatório dinâmico da Comunidade com filtros por período, tipo, usuário, status e categoria, busca interna, ordenação por colunas, agrupamento, totais, médias e gráfico. Ainda precisa validação com dados reais no MongoDB. |
 
-## Funcionalidades ja implementadas
+## Funcionalidades já implementadas
 
-* Tela principal com modulos de gestao.
-* Cadastro de usuario no MongoDB.
+* Tela principal com módulos de gestão.
+* Cadastro de usuário no MongoDB.
 * Login e logout.
-* Sessao usando JWT em cookie httpOnly.
-* Recuperacao de senha por pergunta/resposta, com confirmacao de nova senha.
-* Aceite dos Termos de Uso e da Politica de Privacidade.
-* Bloqueio de acesso quando o usuario ainda nao aceitou os termos atuais.
-* Paginas legais e modal de documentos legais.
-* Edicao de perfil com nome, e-mail e avatar.
-* Publicacoes com legenda e imagem por URL ou upload/base64.
-* Comentarios/depoimentos em publicacoes.
-* Notificacoes geradas por eventos da comunidade.
-* Busca de conteudo por legenda, autor ou comentario.
-* Exportacao autenticada da Comunidade em CSV e JSON.
-* Relatorio imprimivel da Comunidade para salvar como PDF pelo navegador.
-* Compartilhamento de publicacoes da Comunidade com outro usuario cadastrado.
-* Manifesto autenticado de integracao com endpoints JSON disponiveis.
-* Relatorio dinamico da Comunidade com filtros, busca, agrupamentos, totais e grafico.
+* Sessão usando JWT em cookie httpOnly.
+* Recuperação de senha por pergunta/resposta, com confirmação de nova senha.
+* Aceite dos Termos de Uso e da Política de Privacidade.
+* Bloqueio de acesso quando o usuário ainda não aceitou os termos atuais.
+* Páginas legais e modal de documentos legais.
+* Edição de perfil com nome, e-mail e avatar.
+* Publicações com legenda e imagem por URL ou upload/base64.
+* Comentários/depoimentos em publicações.
+* Notificações geradas por eventos da comunidade.
+* Busca de conteúdo por legenda, autor ou comentário.
+* Exportação autenticada da Comunidade em CSV e JSON.
+* Relatório imprimível da Comunidade para salvar como PDF pelo navegador.
+* Compartilhamento de publicações da Comunidade com outro usuário cadastrado.
+* Manifesto autenticado de integração com endpoints JSON disponíveis.
+* Relatório dinâmico da Comunidade com filtros, busca, agrupamentos, totais e gráfico.
 
-## Exportacao e intercambio de dados
+Os módulos operacionais de vendas, financeiro, produção, estoque, logística e compras funcionam como protótipo demonstrativo. As integrações funcionais com banco/API estão concentradas em autenticação, termos, Comunidade, exportações, compartilhamento e relatórios.
+
+## Exportação e intercâmbio de dados
 
 A Fase 5.1 inclui um endpoint autenticado para exportar dados da aba Comunidade:
 
@@ -100,21 +102,21 @@ GET /api/export/comunidade?formato=json
 GET /api/export/comunidade?formato=csv
 ```
 
-O endpoint exige sessao valida via cookie httpOnly, usa os dados do MongoDB Atlas e limita a exportacao aos 200 posts mais recentes. A Fase 5.2 reaproveita o JSON desse endpoint para abrir um relatorio imprimivel no navegador, permitindo salvar em PDF pelo dialogo de impressao. Os dados exportados incluem:
+O endpoint exige sessão válida via cookie httpOnly, usa os dados do MongoDB Atlas e limita a exportação aos 200 posts mais recentes. A Fase 5.2 reaproveita o JSON desse endpoint para abrir um relatório imprimível no navegador, permitindo salvar em PDF pelo diálogo de impressão. Os dados exportados incluem:
 
 * id do post;
 * autor do post;
 * legenda;
 * URL/base64 da imagem, quando existir;
-* data de criacao;
-* quantidade de comentarios;
-* comentarios em formato simples, com autor, texto e data.
+* data de criação;
+* quantidade de comentários;
+* comentários em formato simples, com autor, texto e data.
 
-Dados sensiveis nao sao exportados: senha, hashes, resposta de recuperacao, e-mail, cookie, token JWT e demais campos internos de autenticacao ficam fora da exportacao.
+Dados sensíveis não são exportados: senha, hashes, resposta de recuperação, e-mail, cookie, token JWT e demais campos internos de autenticação ficam fora da exportação.
 
-O PDF atual nao e um arquivo binario gerado pelo backend. Ele e um relatorio HTML imprimivel criado no frontend com `window.print()`, suficiente para validacao inicial sem novas dependencias. Geracao de PDF no servidor e exportacao Excel `.xlsx` ficam como melhorias futuras.
+O PDF atual não é um arquivo binário gerado pelo backend. Ele é um relatório HTML imprimível criado no frontend com `window.print()`, suficiente para validação inicial sem novas dependências. Geração de PDF no servidor e exportação Excel `.xlsx` ficam como melhorias futuras.
 
-O JSON de exportacao inclui metadados para intercambio de dados:
+O JSON de exportação inclui metadados para intercâmbio de dados:
 
 * `schemaVersion`;
 * `origem`;
@@ -124,19 +126,19 @@ O JSON de exportacao inclui metadados para intercambio de dados:
 * `campos`;
 * `posts`.
 
-## Compartilhamento entre usuarios
+## Compartilhamento entre usuários
 
-A Fase 5.3 inclui um compartilhamento inicial usando publicacoes da Comunidade, que ja existem como dados persistidos. O usuario logado pode compartilhar uma publicacao informando o e-mail de outro usuario cadastrado e uma mensagem curta opcional:
+A Fase 5.3 inclui um compartilhamento inicial usando publicações da Comunidade, que já existem como dados persistidos. O usuário logado pode compartilhar uma publicação informando o e-mail de outro usuário cadastrado e uma mensagem curta opcional:
 
 ```text
 POST /api/compartilhamentos
 ```
 
-O endpoint exige sessao valida via cookie httpOnly, valida a publicacao, valida o destinatario na colecao `users`, impede auto-compartilhamento, grava o registro em `shared_items` e cria uma notificacao para o destinatario. Senhas, hashes, cookies, tokens e campos internos de autenticacao nao sao retornados.
+O endpoint exige sessão válida via cookie httpOnly, valida a publicação, valida o destinatário na coleção `users`, impede auto-compartilhamento, grava o registro em `shared_items` e cria uma notificação para o destinatário. Senhas, hashes, cookies, tokens e campos internos de autenticação não são retornados.
 
-OS, pedidos e notas fiscais ainda nao foram adicionados como entidades persistidas no banco. O compartilhamento desses dados fica como extensao futura quando essas entidades existirem no backend.
+OS, pedidos e notas fiscais ainda não foram adicionados como entidades persistidas no banco. O compartilhamento desses dados fica como extensão futura quando essas entidades existirem no backend.
 
-## API de integracao
+## API de integração
 
 A Fase 5.4 adiciona um manifesto simples da API:
 
@@ -144,76 +146,76 @@ A Fase 5.4 adiciona um manifesto simples da API:
 GET /api/integracoes
 ```
 
-Esse endpoint e autenticado para manter o mesmo padrao de protecao das APIs do projeto. Ele nao retorna dados de negocio, apenas documenta contratos disponiveis para intercambio: nome do sistema, versao da API, data de geracao, endpoints, metodos HTTP, parametros aceitos, corpo esperado e observacoes de autenticacao.
+Esse endpoint é autenticado para manter o mesmo padrão de proteção das APIs do projeto. Ele não retorna dados de negócio, apenas documenta contratos disponíveis para intercâmbio: nome do sistema, versão da API, data de geração, endpoints, métodos HTTP, parâmetros aceitos, corpo esperado e observações de autenticação.
 
-Na Vercel, a URL publica `/api/integracoes` e preservada por rewrite para a funcao de exportacao da Comunidade, evitando ultrapassar o limite de Serverless Functions do plano Hobby.
+Na Vercel, a URL pública `/api/integracoes` é preservada por rewrite para a função de exportação da Comunidade, evitando ultrapassar o limite de Serverless Functions do plano Hobby.
 
-O intercambio inicial e feito por JSON autenticado, principalmente pelo endpoint:
+O intercâmbio inicial é feito por JSON autenticado, principalmente pelo endpoint:
 
 ```text
 GET /api/export/comunidade?formato=json
 ```
 
-Nao ha integracao externa real, webhook ou token de API dedicado nesta fase. Webservices externos ficam como melhoria futura, depois que os contratos internos estiverem validados em ambiente real.
+Não há integração externa real, webhook ou token de API dedicado nesta fase. Webservices externos ficam como melhoria futura, depois que os contratos internos estiverem validados em ambiente real.
 
-## Filtros, pesquisa e relatorios
+## Filtros, pesquisa e relatórios
 
-A Fase 6 foi integrada usando os dados ja existentes da Comunidade. O relatorio fica na aba Comunidade e trabalha sobre as publicacoes carregadas do backend, sem criar entidades ficticias de OS, pedidos ou notas fiscais.
+A Fase 6 foi integrada usando os dados já existentes da Comunidade. O relatório fica na aba Comunidade e trabalha sobre as publicações carregadas do backend, sem criar entidades fictícias de OS, pedidos ou notas fiscais.
 
-Recursos incluidos:
+Recursos incluídos:
 
-* filtro por periodo;
-* filtro por tipo de publicacao, usuario, status e categoria;
-* busca por termo dentro de legenda, autor e comentarios;
-* ordenacao por colunas da tabela;
-* agrupamento por categoria, usuario, status ou tipo;
-* totais, soma de comentarios e media de comentarios por post;
-* grafico de barra, pizza ou linha com Chart.js.
+* filtro por período;
+* filtro por tipo de publicação, usuário, status e categoria;
+* busca por termo dentro de legenda, autor e comentários;
+* ordenação por colunas da tabela;
+* agrupamento por categoria, usuário, status ou tipo;
+* totais, soma de comentários e média de comentários por post;
+* gráfico de barra, pizza ou linha com Chart.js.
 
-Como ainda nao existem OS, pedidos ou NF persistidos no banco, esses relatorios ficam para extensao futura quando as entidades reais forem implementadas.
+Como ainda não existem OS, pedidos ou NF persistidos no banco, esses relatórios ficam para extensão futura quando as entidades reais forem implementadas.
 
 ## Testes manuais recomendados
 
-Antes da validacao final em ambiente real com Vercel/MongoDB:
+Antes da validação final em ambiente real com Vercel/MongoDB:
 
 * cadastro novo com aceite de termos;
 * login;
 * logout;
-* recuperacao de senha;
-* atualizacao de perfil/avatar;
-* criacao de post com legenda;
-* criacao de post com URL de imagem;
-* criacao de post com upload/base64;
-* comentario em post;
-* notificacao gerada por comentario;
+* recuperação de senha;
+* atualização de perfil/avatar;
+* criação de post com legenda;
+* criação de post com URL de imagem;
+* criação de post com upload/base64;
+* comentário em post;
+* notificação gerada por comentário;
 * busca por legenda;
 * busca por autor;
-* busca por comentario;
-* marcar notificacoes como lidas;
+* busca por comentário;
+* marcar notificações como lidas;
 * exportar a Comunidade em CSV;
 * exportar a Comunidade em JSON;
-* abrir o relatorio imprimivel da Comunidade e salvar como PDF pelo navegador;
-* compartilhar uma publicacao com outro usuario cadastrado;
-* verificar se o destinatario recebeu notificacao de compartilhamento;
+* abrir o relatório imprimível da Comunidade e salvar como PDF pelo navegador;
+* compartilhar uma publicação com outro usuário cadastrado;
+* verificar se o destinatário recebeu notificação de compartilhamento;
 * consultar o manifesto autenticado em `/api/integracoes`;
-* conferir os metadados `schemaVersion`, `origem` e `campos` no JSON de exportacao;
-* aplicar filtros no relatorio da Comunidade por periodo, tipo, usuario, status e categoria;
-* buscar um termo dentro do relatorio;
-* ordenar a tabela do relatorio pelas colunas;
-* trocar agrupamento e tipo de grafico;
-* conferir totais, soma e media no rodape.
+* conferir os metadados `schemaVersion`, `origem` e `campos` no JSON de exportação;
+* aplicar filtros no relatório da Comunidade por período, tipo, usuário, status e categoria;
+* buscar um termo dentro do relatório;
+* ordenar a tabela do relatório pelas colunas;
+* trocar agrupamento e tipo de gráfico;
+* conferir totais, soma e média no rodapé.
 
-## Proximos passos
+## Próximos passos
 
-Antes de avancar para os proximos blocos da fase 5, recomenda-se executar os testes manuais acima e corrigir qualquer comportamento divergente. A ordem sugerida agora e:
+Antes da entrega final, recomenda-se executar os testes manuais acima em ambiente real com Vercel/MongoDB e corrigir qualquer comportamento divergente. A ordem sugerida agora é:
 
-1. Validar CSV/JSON/PDF imprimivel da Comunidade com MongoDB real.
-2. Validar compartilhamento de publicacoes e notificacoes com usuarios reais no MongoDB.
+1. Validar CSV/JSON/PDF imprimível da Comunidade com MongoDB real.
+2. Validar compartilhamento de publicações e notificações com usuários reais no MongoDB.
 3. Validar o manifesto `/api/integracoes` e os metadados JSON em ambiente real.
-4. Exportacao Excel `.xlsx`, se a equipe realmente precisar desse formato.
-5. PDF binario no backend, se o projeto exigir geracao independente do navegador.
+4. Exportação Excel `.xlsx`, se a equipe realmente precisar desse formato.
+5. PDF binário no backend, se o projeto exigir geração independente do navegador.
 6. Compartilhamento de OS, pedidos e NF quando essas entidades existirem no banco.
 7. APIs/webservices externos reais.
-8. Relatorios de OS, pedidos e NF quando essas entidades forem persistidas no banco.
+8. Relatórios de OS, pedidos e NF quando essas entidades forem persistidas no banco.
 
-CSV e JSON foram escolhidos primeiro porque reaproveitam os dados ja existentes sem exigir layout complexo ou permissoes novas.
+CSV e JSON foram escolhidos primeiro porque reaproveitam os dados já existentes sem exigir layout complexo ou permissões novas.
